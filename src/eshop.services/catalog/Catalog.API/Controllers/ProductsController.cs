@@ -1,5 +1,6 @@
 using Catalog.API.Features.Products.Commands.CreateProduct;
 using Catalog.API.Features.Products.Commands.UpdateProduct;
+using Catalog.API.Features.Products.Queries.GetProductByCategory;
 using Catalog.API.Features.Products.Queries.GetProductById;
 using Catalog.API.Features.Products.Queries.GetProductAll;
 using Catalog.API.Models;
@@ -42,12 +43,12 @@ public class ProductsController(ISender sender) : ControllerBase
     [ProducesResponseType(typeof(BadRequestObjectResult), StatusCodes.Status400BadRequest)]
     public async Task<ActionResult<Product>> GetProductsByCategory(string category)
     {
-        // TODO
+        
         if (string.IsNullOrWhiteSpace(category))
             return BadRequest("Category is required");
         
-        var result = await sender.Send(new ());
-        return Ok();
+        var result = await sender.Send(new GetProductByCategoryQuery(category));
+        return Ok(result.Product);
     }
 
     /// <summary>
