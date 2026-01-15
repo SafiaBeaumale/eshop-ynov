@@ -1,6 +1,7 @@
 using Catalog.API.Features.Products.Commands.CreateProduct;
 using Catalog.API.Features.Products.Commands.UpdateProduct;
 using Catalog.API.Features.Products.Queries.GetProductById;
+using Catalog.API.Features.Products.Queries.GetProductAll;
 using Catalog.API.Models;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
@@ -56,12 +57,14 @@ public class ProductsController(ISender sender) : ControllerBase
     [HttpGet]
     [ProducesResponseType(typeof(IEnumerable<Product>), StatusCodes.Status200OK)]
     public async Task<ActionResult<IEnumerable<Product>>> GetProducts(
-        [FromQuery] int pageNumber
-       , [FromQuery] int pageSize)
+        [FromQuery] int pageNumber = 1,
+        [FromQuery] int pageSize = 10)
     {
-        // TODO
-        var result = await sender.Send(new ()); 
-        return Ok();
+        if (pageNumber < 1 || pageSize < 1)
+            return BadRequest("PageNumber and PageSize must be greater than 0");
+    
+        var result = await sender.Send(new GetProductAllQuery(pageNumber, pageSize)); 
+        return Ok(result.Products);
     }
 
     /// <summary>
