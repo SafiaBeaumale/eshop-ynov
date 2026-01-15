@@ -4,9 +4,19 @@ using Marten;
 
 namespace Catalog.API.Features.Products.Queries.GetProductAll;
 
+/// <summary>
+/// 
+/// </summary>
+/// <param name="documentSession"></param>
 public class GetProductAllQueryHandler(IDocumentSession documentSession)
     : IQueryHandler<GetProductAllQuery, GetProductAllQueryResult>
 {
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <param name="request"></param>
+    /// <param name="cancellationToken"></param>
+    /// <returns></returns>
     public async Task<GetProductAllQueryResult> Handle(GetProductAllQuery request,
         CancellationToken cancellationToken)
     {

@@ -6,7 +6,7 @@ namespace Catalog.API.Features.Products.Queries.GetProductByCategory;
 /// Represents the result of a query to retrieve a product by its category.
 /// Contains the retrieved <see cref="Product"/> details.
 /// </summary>
-/// <param name="Product"></param>
+/// <param name="Products"></param>
 public record GetProductByCategoryQueryResult(
     IReadOnlyList<Product> Products
 );
