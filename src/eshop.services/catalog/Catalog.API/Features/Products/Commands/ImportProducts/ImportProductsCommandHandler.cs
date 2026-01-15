@@ -35,7 +35,7 @@ public class ImportProductsCommandHandler
 
         var importedCount = 0;
 
-        using var stream = request.File.OpenReadStream();
+        await using var stream = request.File.OpenReadStream();
         using var workbook = new XLWorkbook(stream);
         var worksheet = workbook.Worksheet(1);
 

@@ -43,7 +43,7 @@
 						"header": [],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n    \"id\":\"0197f133-c833-4af1-9ce2-6c7202042b80\",\n    \"name\":\"New Product Updated\",\n    \"Categories\":[\"c1\",\"c2\", \"c3\",\"c4\"],\n    \"description\": \"Description Product A\",\n    \"imageFile\" : \"Image file Product A after update\",\n    \"price\": 280\n}",
+							"raw": "{\n    \"id\":\"019bb7bd-6f70-44ec-b18a-596b74f44f6b\",\n    \"name\":\"New Product Updated\",\n    \"Categories\":[\"c1\",\"c2\", \"c3\",\"c4\"],\n    \"description\": \"Description Product A\",\n    \"imageFile\" : \"Image file Product A after update\",\n    \"price\": 280\n}",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -51,13 +51,13 @@
 							}
 						},
 						"url": {
-							"raw": "{{catalog_api_url}}/products/0197f133-c833-4af1-9ce2-6c7202042b80",
+							"raw": "{{catalog_api_url}}/products/019bb7bd-6f70-44ec-b18a-596b74f44f6b",
 							"host": [
 								"{{catalog_api_url}}"
 							],
 							"path": [
 								"products",
-								"0197f133-c833-4af1-9ce2-6c7202042b80"
+								"019bb7bd-6f70-44ec-b18a-596b74f44f6b"
 							]
 						}
 					},
@@ -96,13 +96,13 @@
 						"method": "GET",
 						"header": [],
 						"url": {
-							"raw": "{{catalog_api_url}}/products/0199c3cc-d6e4-45cf-a860-2417ee6417f0",
+							"raw": "{{catalog_api_url}}/products/019bb7da-3e5f-4069-965e-01b1952c5248",
 							"host": [
 								"{{catalog_api_url}}"
 							],
 							"path": [
 								"products",
-								"0199c3cc-d6e4-45cf-a860-2417ee6417f0"
+								"019bb7da-3e5f-4069-965e-01b1952c5248"
 							]
 						}
 					},
@@ -114,13 +114,13 @@
 						"method": "DELETE",
 						"header": [],
 						"url": {
-							"raw": "{{catalog_api_url}}/products/0199c3cc-d6e4-45cf-a860-2417ee6417f0",
+							"raw": "{{catalog_api_url}}/products/019bb7da-3e5f-4069-965e-01b1952c5248",
 							"host": [
 								"{{catalog_api_url}}"
 							],
 							"path": [
 								"products",
-								"0199c3cc-d6e4-45cf-a860-2417ee6417f0"
+								"019bb7da-3e5f-4069-965e-01b1952c5248"
 							]
 						}
 					},
@@ -132,14 +132,14 @@
 						"method": "GET",
 						"header": [],
 						"url": {
-							"raw": "{{catalog_api_url}}/products/category/ ",
+							"raw": "{{catalog_api_url}}/products/category/Accessories",
 							"host": [
 								"{{catalog_api_url}}"
 							],
 							"path": [
 								"products",
 								"category",
-								" "
+								"Accessories"
 							]
 						}
 					},
@@ -167,12 +167,23 @@
 					"request": {
 						"method": "POST",
 						"header": [],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "file",
+									"type": "file",
+									"src": "/C:/Users/Alexis/Downloads/products-import-template.xlsx"
+								}
+							]
+						},
 						"url": {
-							"raw": "{{catalog_api_url}}/import",
+							"raw": "{{catalog_api_url}}/products/import",
 							"host": [
 								"{{catalog_api_url}}"
 							],
 							"path": [
+								"products",
 								"import"
 							]
 						}
