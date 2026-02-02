@@ -54,7 +54,7 @@ public class BasketsController (ISender sender) : ControllerBase
     /// <param name="userName">The username whose shopping basket item is to be deleted.</param>
     /// <param name="productId">The product ID of the item to delete.</param>
     /// <returns>A boolean value indicating whether the item was successfully deleted or a not-found response if the item doesn't exist.</returns>
-    [HttpDelete("items/{productId:guid}", Order = 1)]
+    [HttpDelete("items/{productId:guid}")]
     [ProducesResponseType(typeof(bool), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(NotFoundObjectResult), StatusCodes.Status404NotFound)]
     public async Task<ActionResult<bool>> DeleteBasketItem(string userName, Guid productId)
@@ -74,7 +74,7 @@ public class BasketsController (ISender sender) : ControllerBase
     /// </summary>
     /// <param name="userName">The username whose shopping basket is to be deleted.</param>
     /// <returns>A boolean value indicating whether the basket was successfully deleted or a not-found response if no basket exists for the user.</returns>
-    [HttpDelete("", Order = 2)]
+    [HttpDelete]
     [ProducesResponseType(typeof(bool), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(NotFoundObjectResult), StatusCodes.Status404NotFound)]
     public async Task<ActionResult<bool>> DeleteBasket(string userName)
