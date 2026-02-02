@@ -77,4 +77,34 @@ public class BasketRepositoryCache(IBasketRepository repository, IDistributedCac
         await cache.SetObjectAsync(cacheKey, createdBasket, cancellationToken);
         return createdBasket;
     }
+
+    /// <inheritdoc />
+    public async Task<ShoppingCart> ValidateBasketAsync(string userName,
+        CancellationToken cancellationToken = default)
+    {
+        var cacheKey = GenerateKey(userName);
+        var validatedBasket = await repository.ValidateBasketAsync(userName, cancellationToken);
+        await cache.RemoveAsync(cacheKey, cancellationToken);
+        return validatedBasket;
+    }
+
+    /// <inheritdoc />
+    public async Task<ShoppingCart> AddItemAsync(string userName, ShoppingCartItem item,
+        CancellationToken cancellationToken = default)
+    {
+        var updatedBasket = await repository.AddItemAsync(userName, item, cancellationToken);
+        var cacheKey = GenerateKey(userName);
+        await cache.SetObjectAsync(cacheKey, updatedBasket, cancellationToken);
+        return updatedBasket;
+    }
+
+    /// <inheritdoc />
+    public async Task<ShoppingCart> UpdateItemQuantityAsync(string userName, Guid productId, int quantity,
+        CancellationToken cancellationToken = default)
+    {
+        var updatedBasket = await repository.UpdateItemQuantityAsync(userName, productId, quantity, cancellationToken);
+        var cacheKey = GenerateKey(userName);
+        await cache.SetObjectAsync(cacheKey, updatedBasket, cancellationToken);
+        return updatedBasket;
+    }
 }
