@@ -1,5 +1,6 @@
 using Basket.API.Exceptions;
 using Basket.API.Models;
+using BuildingBlocks.Exceptions;
 using Marten;
 
 namespace Basket.API.Data.Repositories;
@@ -50,6 +51,66 @@ public class BasketRepository(IDocumentSession session) : IBasketRepository
     { 
         session.Store(basket);
         await session.SaveChangesAsync(cancellationToken);
+        return basket;
+    }
+
+    /// <inheritdoc />
+    public async Task<ShoppingCart> ValidateBasketAsync(string userName,
+        CancellationToken cancellationToken = default)
+    {
+        var basket = await session.LoadAsync<ShoppingCart>(userName, cancellationToken);
+        if (basket is null)
+            throw new BasketNotFoundException(userName);
+
+        session.Delete<ShoppingCart>(userName);
+        await session.SaveChangesAsync(cancellationToken);
+
+        return basket;
+    }
+
+    /// <inheritdoc />
+    public async Task<ShoppingCart> AddItemAsync(string userName, ShoppingCartItem item,
+        CancellationToken cancellationToken = default)
+    {
+        var basket = await session.LoadAsync<ShoppingCart>(userName, cancellationToken);
+        if (basket is null)
+            throw new BasketNotFoundException(userName);
+
+        var items = basket.Items.ToList();
+        var existingItem = items.FirstOrDefault(i => i.ProductId == item.ProductId);
+
+        if (existingItem is not null)
+        {
+            existingItem.Quantity += item.Quantity;
+        }
+        else
+        {
+            items.Add(item);
+        }
+
+        basket.Items = items;
+        session.Store(basket);
+        await session.SaveChangesAsync(cancellationToken);
+
+        return basket;
+    }
+
+    /// <inheritdoc />
+    public async Task<ShoppingCart> UpdateItemQuantityAsync(string userName, Guid productId, int quantity,
+        CancellationToken cancellationToken = default)
+    {
+        var basket = await session.LoadAsync<ShoppingCart>(userName, cancellationToken);
+        if (basket is null)
+            throw new BasketNotFoundException(userName);
+
+        var item = basket.Items.FirstOrDefault(i => i.ProductId == productId);
+        if (item is null)
+            throw new NotFoundException("produit", productId);
+
+        item.Quantity = quantity;
+        session.Store(basket);
+        await session.SaveChangesAsync(cancellationToken);
+
         return basket;
     }
 }
