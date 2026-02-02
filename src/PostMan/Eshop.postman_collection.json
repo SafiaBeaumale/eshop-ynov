@@ -1,10 +1,10 @@
 {
 	"info": {
-		"_postman_id": "7935d397-2623-4d81-bf99-72d39612033f",
+		"_postman_id": "863c47c9-30d6-4799-8b5e-2b40102876db",
 		"name": "Eshop",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
-		"_exporter_id": "40702018",
-		"_collection_link": "https://restless-water-460462.postman.co/workspace/My-Workspace~3375504c-c6f1-4193-805e-686bc68b38e7/collection/40702018-7935d397-2623-4d81-bf99-72d39612033f?action=share&source=collection_link&creator=40702018"
+		"_exporter_id": "49752189",
+		"_collection_link": "https://alexisferon081-2255306.postman.co/workspace/alexisferon081's-Workspace~61715bba-3252-47d1-8c5d-1c1c439d5d4c/collection/49752189-863c47c9-30d6-4799-8b5e-2b40102876db?action=share&source=collection_link&creator=49752189"
 	},
 	"item": [
 		{
@@ -43,7 +43,7 @@
 						"header": [],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n    \"id\":\"0197f133-c833-4af1-9ce2-6c7202042b80\",\n    \"name\":\"New Product Updated\",\n    \"Categories\":[\"c1\",\"c2\", \"c3\",\"c4\"],\n    \"description\": \"Description Product A\",\n    \"imageFile\" : \"Image file Product A after update\",\n    \"price\": 280\n}",
+							"raw": "{\n    \"id\":\"019bb7bd-6f70-44ec-b18a-596b74f44f6b\",\n    \"name\":\"New Product Updated\",\n    \"Categories\":[\"c1\",\"c2\", \"c3\",\"c4\"],\n    \"description\": \"Description Product A\",\n    \"imageFile\" : \"Image file Product A after update\",\n    \"price\": 280\n}",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -51,13 +51,13 @@
 							}
 						},
 						"url": {
-							"raw": "{{catalog_api_url}}/products/0197f133-c833-4af1-9ce2-6c7202042b80",
+							"raw": "{{catalog_api_url}}/products/019bb7bd-6f70-44ec-b18a-596b74f44f6b",
 							"host": [
 								"{{catalog_api_url}}"
 							],
 							"path": [
 								"products",
-								"0197f133-c833-4af1-9ce2-6c7202042b80"
+								"019bb7bd-6f70-44ec-b18a-596b74f44f6b"
 							]
 						}
 					},
@@ -96,13 +96,13 @@
 						"method": "GET",
 						"header": [],
 						"url": {
-							"raw": "{{catalog_api_url}}/products/0199c3cc-d6e4-45cf-a860-2417ee6417f0",
+							"raw": "{{catalog_api_url}}/products/019bb7da-3e5f-4069-965e-01b1952c5248",
 							"host": [
 								"{{catalog_api_url}}"
 							],
 							"path": [
 								"products",
-								"0199c3cc-d6e4-45cf-a860-2417ee6417f0"
+								"019bb7da-3e5f-4069-965e-01b1952c5248"
 							]
 						}
 					},
@@ -114,13 +114,13 @@
 						"method": "DELETE",
 						"header": [],
 						"url": {
-							"raw": "{{catalog_api_url}}/products/0199c3cc-d6e4-45cf-a860-2417ee6417f0",
+							"raw": "{{catalog_api_url}}/products/019bb7da-3e5f-4069-965e-01b1952c5248",
 							"host": [
 								"{{catalog_api_url}}"
 							],
 							"path": [
 								"products",
-								"0199c3cc-d6e4-45cf-a860-2417ee6417f0"
+								"019bb7da-3e5f-4069-965e-01b1952c5248"
 							]
 						}
 					},
@@ -132,14 +132,14 @@
 						"method": "GET",
 						"header": [],
 						"url": {
-							"raw": "{{catalog_api_url}}/products/category/ ",
+							"raw": "{{catalog_api_url}}/products/category/Accessories",
 							"host": [
 								"{{catalog_api_url}}"
 							],
 							"path": [
 								"products",
 								"category",
-								" "
+								"Accessories"
 							]
 						}
 					},
@@ -157,6 +157,52 @@
 							],
 							"path": [
 								"health"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Import Produits Excel",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "file",
+									"type": "file",
+									"src": "/C:/Users/Alexis/Downloads/products-import-template.xlsx"
+								}
+							]
+						},
+						"url": {
+							"raw": "{{catalog_api_url}}/products/import",
+							"host": [
+								"{{catalog_api_url}}"
+							],
+							"path": [
+								"products",
+								"import"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Export Produits",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{catalog_api_url}}/products/export",
+							"host": [
+								"{{catalog_api_url}}"
+							],
+							"path": [
+								"products",
+								"export"
 							]
 						}
 					},
@@ -574,7 +620,10 @@
 					"name": "New Request",
 					"request": {
 						"method": "GET",
-						"header": []
+						"header": [],
+						"url": {
+							"raw": ""
+						}
 					},
 					"response": []
 				}
