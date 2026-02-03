@@ -1,15 +1,13 @@
 using Basket.API.Data.Repositories;
-using Basket.API.Models;
+using Basket.API.Services;
 using BuildingBlocks.CQRS;
 using BuildingBlocks.Exceptions;
-using Discount.Grpc;
-using Grpc.Core;
 
 namespace Basket.API.Features.Baskets.Commands.UpdateItemQuantity;
 
 public class UpdateItemQuantityCommandHandler(
     IBasketRepository repository,
-    DiscountProtoService.DiscountProtoServiceClient discountProtoServiceClient)
+    IDiscountCalculatorService discountCalculator)
     : ICommandHandler<UpdateItemQuantityCommand, UpdateItemQuantityCommandResult>
 {
     public async Task<UpdateItemQuantityCommandResult> Handle(UpdateItemQuantityCommand request,
@@ -24,31 +22,11 @@ public class UpdateItemQuantityCommandHandler(
 
         item.Quantity = request.Quantity;
 
-        await SetTotalAfterDiscountAsync(cart, cancellationToken);
+        // Recalculer le total avec les reductions (pourcentages d'abord, puis montants fixes, cumulables)
+        cart.TotalAfterDiscount = await discountCalculator.CalculateTotalAfterDiscountAsync(cart, cancellationToken);
 
         cart = await repository.UpdateBasketAsync(cart, cancellationToken).ConfigureAwait(false);
 
         return new UpdateItemQuantityCommandResult(true, cart);
-    }
-
-    private async Task SetTotalAfterDiscountAsync(ShoppingCart cart, CancellationToken cancellationToken)
-    {
-        decimal totalAfterDiscount = 0;
-        foreach (var basketItem in cart.Items)
-        {
-            try
-            {
-                var coupon = await discountProtoServiceClient.GetDiscountAsync(
-                    new GetDiscountRequest { ProductName = basketItem.ProductName },
-                    cancellationToken: cancellationToken).ConfigureAwait(false);
-                var unitPriceAfterDiscount = Math.Max(0, basketItem.Price - (decimal)coupon.Amount);
-                totalAfterDiscount += unitPriceAfterDiscount * basketItem.Quantity;
-            }
-            catch (RpcException ex) when (ex.StatusCode == StatusCode.NotFound)
-            {
-                totalAfterDiscount += basketItem.Price * basketItem.Quantity;
-            }
-        }
-        cart.TotalAfterDiscount = totalAfterDiscount;
     }
 }

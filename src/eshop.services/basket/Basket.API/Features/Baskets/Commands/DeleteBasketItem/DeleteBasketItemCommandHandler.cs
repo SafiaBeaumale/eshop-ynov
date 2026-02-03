@@ -1,10 +1,12 @@
 using Basket.API.Data.Repositories;
+using Basket.API.Services;
 using BuildingBlocks.CQRS;
-using Microsoft.Extensions.Logging;
 
 namespace Basket.API.Features.Baskets.Commands.DeleteBasketItem;
 
-public class DeleteBasketItemCommandHandler(IBasketRepository repository, ILogger<DeleteBasketItemCommandHandler> logger) 
+public class DeleteBasketItemCommandHandler(
+    IBasketRepository repository,
+    IDiscountCalculatorService discountCalculator)
     : ICommandHandler<DeleteBasketItemCommand, DeleteBasketItemCommandResult>
 {
     public async Task<DeleteBasketItemCommandResult> Handle(DeleteBasketItemCommand request,
@@ -22,13 +24,21 @@ public class DeleteBasketItemCommandHandler(IBasketRepository repository, ILogge
         }
 
         itemsList.Remove(itemToRemove);
-
         basket.Items = itemsList;
 
-        await repository.CreateBasketAsync(basket, cancellationToken)
+        // Recalculer le total avec les reductions apres suppression de l'item
+        if (basket.Items.Any())
+        {
+            basket.TotalAfterDiscount = await discountCalculator.CalculateTotalAfterDiscountAsync(basket, cancellationToken);
+        }
+        else
+        {
+            basket.TotalAfterDiscount = 0;
+        }
+
+        await repository.UpdateBasketAsync(basket, cancellationToken)
             .ConfigureAwait(false);
 
         return new DeleteBasketItemCommandResult(true);
     }
 }
-
