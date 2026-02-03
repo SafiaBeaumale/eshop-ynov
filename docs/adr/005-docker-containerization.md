@@ -36,7 +36,7 @@ graph LR
 
     Catalog --> CatalogDB[(PostgreSQL Catalog)]
     Basket --> BasketDB[(PostgreSQL Basket)]
-    Discount --> DiscountDB[(PostgreSQL Discount)]
+    Discount --> DiscountDB[(SQLite Discount)]
 
     Catalog -. Events .-> RabbitMQ[(RabbitMQ Container)]
     Basket -. Events .-> RabbitMQ
