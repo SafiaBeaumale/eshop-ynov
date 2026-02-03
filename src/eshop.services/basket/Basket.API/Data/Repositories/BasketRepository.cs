@@ -113,4 +113,12 @@ public class BasketRepository(IDocumentSession session) : IBasketRepository
 
         return basket;
     }
+
+    /// <inheritdoc />
+    public async Task<ShoppingCart> UpdateBasketAsync(ShoppingCart basket, CancellationToken cancellationToken = default)
+    {
+        session.Store(basket);
+        await session.SaveChangesAsync(cancellationToken);
+        return basket;
+    }
 }

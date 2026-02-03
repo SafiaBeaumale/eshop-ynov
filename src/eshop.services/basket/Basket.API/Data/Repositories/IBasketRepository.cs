@@ -63,4 +63,12 @@ public interface IBasketRepository
     /// <param name="cancellationToken">A cancellation token to observe while waiting for the operation to complete.</param>
     /// <returns>The updated shopping cart.</returns>
     Task<ShoppingCart> UpdateItemQuantityAsync(string userName, Guid productId, int quantity, CancellationToken cancellationToken = default);
+
+    /// <summary>
+    /// Updates an existing shopping cart in the data store (e.g. to persist TotalAfterDiscount).
+    /// </summary>
+    /// <param name="basket">The shopping cart to update.</param>
+    /// <param name="cancellationToken">A cancellation token to observe while waiting for the operation to complete.</param>
+    /// <returns>The updated shopping cart.</returns>
+    Task<ShoppingCart> UpdateBasketAsync(ShoppingCart basket, CancellationToken cancellationToken = default);
 }
