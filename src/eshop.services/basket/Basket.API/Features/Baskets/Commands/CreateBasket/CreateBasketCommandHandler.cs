@@ -2,6 +2,7 @@ using Basket.API.Data.Repositories;
 using Basket.API.Models;
 using BuildingBlocks.CQRS;
 using Discount.Grpc;
+using Grpc.Core;
 
 namespace Basket.API.Features.Baskets.Commands.CreateBasket;
 
@@ -22,7 +23,7 @@ public class CreateBasketCommandHandler(IBasketRepository repository, DiscountPr
     {
         var cart = request.Cart;
 
-        await ApplyDiscountToItemAsync(cart, cancellationToken);
+        await SetTotalAfterDiscountAsync(cart, cancellationToken);
 
         var basketCart = await repository.CreateBasketAsync(cart, cancellationToken)
             .ConfigureAwait(false);
@@ -36,14 +37,24 @@ public class CreateBasketCommandHandler(IBasketRepository repository, DiscountPr
     /// <param name="cart">The shopping cart containing the items to which the discount will be applied.</param>
     /// <param name="cancellationToken">A token to observe while waiting for the operation to complete.</param>
     /// <returns>A task that represents the asynchronous operation of applying discounts to the items.</returns>
-    private async Task ApplyDiscountToItemAsync(ShoppingCart cart, CancellationToken cancellationToken)
+    private async Task SetTotalAfterDiscountAsync(ShoppingCart cart, CancellationToken cancellationToken)
     {
+        decimal totalAfterDiscount = 0;
         foreach (var item in cart.Items)
         {
-            var coupon = await discountProtoServiceClient.GetDiscountAsync(new GetDiscountRequest
-                { ProductName = item.ProductName }, cancellationToken: cancellationToken);
-            
-            item.Price -= (decimal)coupon.Amount;
+            try
+            {
+                var coupon = await discountProtoServiceClient.GetDiscountAsync(
+                    new GetDiscountRequest { ProductName = item.ProductName },
+                    cancellationToken: cancellationToken).ConfigureAwait(false);
+                var unitPriceAfterDiscount = Math.Max(0, item.Price - (decimal)coupon.Amount);
+                totalAfterDiscount += unitPriceAfterDiscount * item.Quantity;
+            }
+            catch (RpcException ex) when (ex.StatusCode == StatusCode.NotFound)
+            {
+                totalAfterDiscount += item.Price * item.Quantity;
+            }
         }
+        cart.TotalAfterDiscount = totalAfterDiscount;
     }
 }
