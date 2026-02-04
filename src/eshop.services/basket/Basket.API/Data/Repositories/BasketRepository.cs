@@ -55,20 +55,6 @@ public class BasketRepository(IDocumentSession session) : IBasketRepository
     }
 
     /// <inheritdoc />
-    public async Task<ShoppingCart> ValidateBasketAsync(string userName,
-        CancellationToken cancellationToken = default)
-    {
-        var basket = await session.LoadAsync<ShoppingCart>(userName, cancellationToken);
-        if (basket is null)
-            throw new BasketNotFoundException(userName);
-
-        session.Delete<ShoppingCart>(userName);
-        await session.SaveChangesAsync(cancellationToken);
-
-        return basket;
-    }
-
-    /// <inheritdoc />
     public async Task<ShoppingCart> AddItemAsync(string userName, ShoppingCartItem item,
         CancellationToken cancellationToken = default)
     {

@@ -3,7 +3,6 @@ using Basket.API.Features.Baskets.Commands.CheckOutBasket;
 using Basket.API.Features.Baskets.Commands.CreateBasket;
 using Basket.API.Features.Baskets.Commands.DeleteBasket;
 using Basket.API.Features.Baskets.Commands.UpdateItemQuantity;
-using Basket.API.Features.Baskets.Commands.ValidateBasket;
 using Basket.API.Features.Baskets.Commands.DeleteBasketItem;
 using Basket.API.Features.Baskets.Queries.GetBasketByUserName;
 using Basket.API.Models;
@@ -85,20 +84,6 @@ public class BasketsController (ISender sender) : ControllerBase
     }
     
     /// <summary>
-    /// Validates and checks out the shopping basket for the specified user.
-    /// </summary>
-    /// <param name="userName">The username whose shopping basket is to be checked out.</param>
-    /// <returns>A result indicating whether the checkout was successful.</returns>
-    [HttpPost("checkout")]
-    [ProducesResponseType(typeof(ValidateBasketCommandResult), StatusCodes.Status200OK)]
-    [ProducesResponseType(typeof(NotFoundObjectResult), StatusCodes.Status404NotFound)]
-    public async Task<ActionResult<ValidateBasketCommandResult>> Checkout(string userName)
-    {
-        var result = await sender.Send(new ValidateBasketCommand(userName));
-        return Ok(result);
-    }
-
-    /// <summary>
     /// Adds an item to the shopping basket for the specified user.
     /// </summary>
     /// <param name="userName">The username whose shopping basket will be updated.</param>
@@ -127,18 +112,15 @@ public class BasketsController (ISender sender) : ControllerBase
         var command = new UpdateItemQuantityCommand(userName, request.ProductId, request.Quantity);
         var result = await sender.Send(command);
         return Ok(result);
-        
-    // TODO Update basket product quantity
-    
-    //TODO Delete item in user basket
-    
+    }
+
     /// <summary>
     /// Processes the checkout operation for the specified user's basket.
     /// </summary>
     /// <param name="userName">The username whose basket is to be checked out.</param>
     /// <param name="request">The details of the checkout request, including basket information.</param>
     /// <returns>The result of the checkout operation, indicating success or failure status.</returns>
-    [HttpPost("Checkout")]
+    [HttpPost("checkout")]
     [ProducesResponseType(typeof(bool), StatusCodes.Status201Created)]
     public async Task<ActionResult<bool>> CheckOutBasket(string userName, [FromBody] CheckOutBasketCommand request)
     {

@@ -24,7 +24,7 @@ flowchart TB
                 AddItemCmd["AddItemCommand"]
                 UpdateQtyCmd["UpdateItemQuantityCommand"]
                 DeleteItemCmd["DeleteBasketItemCommand"]
-                ValidateCmd["ValidateBasketCommand"]
+                CheckOutCmd["CheckOutBasketCommand"]
             end
 
             subgraph queries["Queries"]
@@ -98,9 +98,9 @@ Basket.API/
 │       │   ├── DeleteBasketItem/
 │       │   │   ├── DeleteBasketItemCommand.cs
 │       │   │   └── DeleteBasketItemCommandHandler.cs
-│       │   └── ValidateBasket/
-│       │       ├── ValidateBasketCommand.cs
-│       │       └── ValidateBasketCommandHandler.cs
+│       │   └── CheckOutBasket/
+│       │       ├── CheckOutBasketCommand.cs
+│       │       └── CheckOutBasketCommandHandler.cs
 │       └── Queries/
 │           └── GetBasketByUserName/
 │               ├── GetBasketByUserNameQuery.cs
@@ -333,11 +333,32 @@ public class CachedBasketRepository : IBasketRepository
 | UserName  | string | Oui    |
 | ProductId | Guid   | Oui    |
 
-### ValidateBasketCommand
+### CheckOutBasketCommand
 
-| Propriete | Type   | Requis |
-| --------- | ------ | ------ |
-| UserName  | string | Oui    |
+| Propriete         | Type              | Requis |
+| ----------------- | ----------------- | ------ |
+| BasketCheckoutDto | BasketCheckoutDto | Oui    |
+
+**BasketCheckoutDto** :
+
+| Propriete     | Type    | Requis |
+| ------------- | ------- | ------ |
+| UserName      | string  | Oui    |
+| CustomerId    | Guid    | Oui    |
+| FirstName     | string  | Oui    |
+| LastName      | string  | Oui    |
+| EmailAddress  | string  | Oui    |
+| AddressLine   | string  | Oui    |
+| Country       | string  | Oui    |
+| State         | string  | Oui    |
+| ZipCode       | string  | Oui    |
+| CardName      | string  | Oui    |
+| CardNumber    | string  | Oui    |
+| Expiration    | string  | Oui    |
+| Cvv           | string  | Oui    |
+| PaymentMethod | int     | Oui    |
+
+> Le handler publie un `BasketCheckoutEvent` via MassTransit pour notifier le service Ordering, puis supprime le panier.
 
 ## Queries et Handlers
 

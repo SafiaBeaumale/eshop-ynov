@@ -38,14 +38,6 @@ public interface IBasketRepository
     Task<ShoppingCart> CreateBasketAsync(ShoppingCart basket, CancellationToken cancellationToken = default);
 
     /// <summary>
-    /// Validates and checks out the shopping cart for the specified user, removing it from the data store.
-    /// </summary>
-    /// <param name="userName">The username whose shopping cart is to be validated and checked out.</param>
-    /// <param name="cancellationToken">A cancellation token to observe while waiting for the operation to complete.</param>
-    /// <returns>A task that represents the asynchronous operation. The task result contains the validated shopping cart.</returns>
-    Task<ShoppingCart> ValidateBasketAsync(string userName, CancellationToken cancellationToken = default);
-
-    /// <summary>
     /// Adds an item to the shopping cart for the specified user. If the product already exists, its quantity is incremented.
     /// </summary>
     /// <param name="userName">The username whose shopping cart will be updated.</param>
