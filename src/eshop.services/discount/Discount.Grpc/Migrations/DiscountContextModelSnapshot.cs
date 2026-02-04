@@ -29,9 +29,15 @@ namespace Discount.Grpc.Migrations
                         .IsRequired()
                         .HasColumnType("TEXT");
 
+                    b.Property<bool>("IsGlobal")
+                        .HasColumnType("INTEGER");
+
                     b.Property<string>("ProductName")
                         .IsRequired()
                         .HasColumnType("TEXT");
+
+                    b.Property<int>("Type")
+                        .HasColumnType("INTEGER");
 
                     b.HasKey("Id");
 
@@ -41,16 +47,38 @@ namespace Discount.Grpc.Migrations
                         new
                         {
                             Id = 1,
-                            Amount = 150.0,
-                            Description = "IPhone X New",
-                            ProductName = "IPhone X"
+                            Amount = 10.0,
+                            Description = "Promo IPhone",
+                            IsGlobal = false,
+                            ProductName = "IPhone X",
+                            Type = 0
                         },
                         new
                         {
                             Id = 2,
-                            Amount = 100.0,
-                            Description = "Samsung 10 New",
-                            ProductName = "Samsung 10"
+                            Amount = 50.0,
+                            Description = "Promo Samsung",
+                            IsGlobal = false,
+                            ProductName = "Samsung 10",
+                            Type = 1
+                        },
+                        new
+                        {
+                            Id = 3,
+                            Amount = 5.0,
+                            Description = "Code promo global -5%",
+                            IsGlobal = true,
+                            ProductName = "",
+                            Type = 0
+                        },
+                        new
+                        {
+                            Id = 4,
+                            Amount = 10.0,
+                            Description = "Bon de reduction 10 euros",
+                            IsGlobal = true,
+                            ProductName = "",
+                            Type = 1
                         });
                 });
 #pragma warning restore 612, 618

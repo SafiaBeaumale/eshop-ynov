@@ -36,4 +36,39 @@ public interface IBasketRepository
     /// A task that represents the asynchronous operation. The task result contains the created shopping cart.
     /// </returns>
     Task<ShoppingCart> CreateBasketAsync(ShoppingCart basket, CancellationToken cancellationToken = default);
+
+    /// <summary>
+    /// Validates and checks out the shopping cart for the specified user, removing it from the data store.
+    /// </summary>
+    /// <param name="userName">The username whose shopping cart is to be validated and checked out.</param>
+    /// <param name="cancellationToken">A cancellation token to observe while waiting for the operation to complete.</param>
+    /// <returns>A task that represents the asynchronous operation. The task result contains the validated shopping cart.</returns>
+    Task<ShoppingCart> ValidateBasketAsync(string userName, CancellationToken cancellationToken = default);
+
+    /// <summary>
+    /// Adds an item to the shopping cart for the specified user. If the product already exists, its quantity is incremented.
+    /// </summary>
+    /// <param name="userName">The username whose shopping cart will be updated.</param>
+    /// <param name="item">The item to add to the cart.</param>
+    /// <param name="cancellationToken">A cancellation token to observe while waiting for the operation to complete.</param>
+    /// <returns>The updated shopping cart.</returns>
+    Task<ShoppingCart> AddItemAsync(string userName, ShoppingCartItem item, CancellationToken cancellationToken = default);
+
+    /// <summary>
+    /// Updates the quantity of a specific product in the user's shopping cart.
+    /// </summary>
+    /// <param name="userName">The username whose shopping cart will be updated.</param>
+    /// <param name="productId">The product identifier to update.</param>
+    /// <param name="quantity">The new quantity for the product.</param>
+    /// <param name="cancellationToken">A cancellation token to observe while waiting for the operation to complete.</param>
+    /// <returns>The updated shopping cart.</returns>
+    Task<ShoppingCart> UpdateItemQuantityAsync(string userName, Guid productId, int quantity, CancellationToken cancellationToken = default);
+
+    /// <summary>
+    /// Updates an existing shopping cart in the data store (e.g. to persist TotalAfterDiscount).
+    /// </summary>
+    /// <param name="basket">The shopping cart to update.</param>
+    /// <param name="cancellationToken">A cancellation token to observe while waiting for the operation to complete.</param>
+    /// <returns>The updated shopping cart.</returns>
+    Task<ShoppingCart> UpdateBasketAsync(ShoppingCart basket, CancellationToken cancellationToken = default);
 }

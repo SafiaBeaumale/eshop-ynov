@@ -20,8 +20,8 @@ public class GetBasketByUserNameQueryHandler(IBasketRepository repository) : IQu
         CancellationToken cancellationToken)
     {
         var basket = await repository.GetBasketByUserNameAsync(request.UserName, cancellationToken)
-           .ConfigureAwait(false);
+            .ConfigureAwait(false);
 
-       return new GetBasketByUserNameQueryResult(basket);
+        return new GetBasketByUserNameQueryResult(basket);
     }
 }

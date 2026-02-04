@@ -1,4 +1,5 @@
 using Basket.API.Data.Repositories;
+using Basket.API.Services;
 using BuildingBlocks.Behaviors;
 using BuildingBlocks.Messaging.MassTransit;
 using BuildingBlocks.Middlewares;
@@ -41,19 +42,21 @@ builder.Services.AddStackExchangeRedisCache(options =>
 
 builder.Services.AddGrpcClient<DiscountProtoService.DiscountProtoServiceClient>(options =>
 {
-    options.Address = new Uri(configuration.GetValue<string>("GrpcSettings:DiscountUrl") ?? string.Empty);   
+    options.Address = new Uri(configuration.GetValue<string>("GrpcSettings:DiscountUrl") ?? string.Empty);
 }).ConfigurePrimaryHttpMessageHandler (() =>
 {
     var handler = new HttpClientHandler();
-    
+
     if (builder.Environment.IsDevelopment())
     {
-        handler.ServerCertificateCustomValidationCallback = 
+        handler.ServerCertificateCustomValidationCallback =
             HttpClientHandler.DangerousAcceptAnyServerCertificateValidator;
     }
     return handler;
 });
 
+// Service de calcul des reductions
+builder.Services.AddScoped<IDiscountCalculatorService, DiscountCalculatorService>();
 builder.Services.AddMessageBroker(configuration);
 
 builder.Services.AddControllers();
