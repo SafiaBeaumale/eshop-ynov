@@ -36,7 +36,8 @@ public static class ServiceExtension
     /// <returns>The configured web application instance with API-specific middleware and components applied.</returns>
     public static WebApplication UseApiServices(this WebApplication app)
     {
-        app.UseHttpsRedirection();
+        if (app.Environment.IsProduction())
+            app.UseHttpsRedirection();
 
         app.UseAuthorization();
         
