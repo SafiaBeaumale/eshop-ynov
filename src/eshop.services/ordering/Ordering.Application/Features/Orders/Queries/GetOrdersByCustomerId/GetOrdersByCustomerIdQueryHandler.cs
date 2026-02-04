@@ -2,6 +2,7 @@ using BuildingBlocks.CQRS;
 using Microsoft.EntityFrameworkCore;
 using Ordering.Application.Features.Orders.Data;
 using Ordering.Application.Features.Orders.Dtos;
+using Ordering.Application.Features.Orders.Mappers;
 using Ordering.Domain.ValueObjects;
 
 namespace Ordering.Application.Features.Orders.Queries.GetOrdersByCustomerId;

@@ -4,6 +4,8 @@ using Ordering.Application.Features.Orders.Commands.CreateOrder;
 using Ordering.Application.Features.Orders.Commands.DeleteOrder;
 using Ordering.Application.Features.Orders.Commands.UpdateOrder;
 using Ordering.Application.Features.Orders.Dtos;
+using Ordering.Application.Features.Orders.Queries.GetOrders;
+using Ordering.Application.Features.Orders.Queries.GetOrdersById;
 using Ordering.Application.Features.Orders.Queries.GetOrdersByCustomerId;
 
 namespace Ordering.API.Controllers;
@@ -17,20 +19,6 @@ namespace Ordering.API.Controllers;
 [Produces("application/json")]
 public class OrdersController(ISender sender) : ControllerBase
 {
-    /// <summary>
-    /// Retrieves a list of orders filtered by the provided order name.
-    /// </summary>
-    /// <param name="name">The name used to filter the orders.</param>
-    /// <returns>A collection of <see cref="OrderDto"/> objects that match the specified name.</returns>
-    [HttpGet("{name}")]
-    [ProducesResponseType(typeof(IEnumerable<OrderDto>), StatusCodes.Status200OK)]
-    [ProducesResponseType(typeof(NotFoundObjectResult), StatusCodes.Status404NotFound)]
-    public async Task<ActionResult<IEnumerable<OrderDto>>> GetOrdersByName(string name)
-    {
-        // TODO
-        return Ok();
-    }
-
     /// <summary>
     /// Retrieves a list of orders associated with a specific customer identified by their unique ID.
     /// </summary>
@@ -47,18 +35,31 @@ public class OrdersController(ISender sender) : ControllerBase
 
 
     /// <summary>
-    /// Retrieves a paginated list of orders based on the specified page index and page size.
+    /// Retrieves a paginated list of orders based on the specified page number and page size.
     /// </summary>
-    /// <param name="pageIndex">The zero-based index of the page to retrieve.</param>
+    /// <param name="pageNumber">The page number to retrieve (1-based).</param>
     /// <param name="pageSize">The number of orders to include in each page of results.</param>
     /// <returns>A collection of <see cref="OrderDto"/> objects representing the paginated list of orders.</returns>
     [HttpGet]
     [ProducesResponseType(typeof(IEnumerable<OrderDto>), StatusCodes.Status200OK)]
-    [ProducesResponseType(typeof(NotFoundObjectResult), StatusCodes.Status404NotFound)]
-    public async Task<ActionResult<IEnumerable<OrderDto>>> GetOrders([FromQuery] int pageIndex ,[FromQuery]  int pageSize)
+    public async Task<ActionResult<IEnumerable<OrderDto>>> GetOrders([FromQuery] int pageNumber = 1, [FromQuery] int pageSize = 10)
     {
-        // TODO
-        return Ok();
+        var result = await sender.Send(new GetOrdersQuery(pageNumber, pageSize));
+        return Ok(result.Orders);
+    }
+
+    /// <summary>
+    /// Retrieves a specific order by its unique identifier.
+    /// </summary>
+    /// <param name="orderId">The unique identifier of the order.</param>
+    /// <returns>The <see cref="OrderDto"/> for the specified order.</returns>
+    [HttpGet("{orderId:guid}")]
+    [ProducesResponseType(typeof(OrderDto), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(NotFoundObjectResult), StatusCodes.Status404NotFound)]
+    public async Task<ActionResult<OrderDto>> GetOrderById(Guid orderId)
+    {
+        var result = await sender.Send(new GetOrdersByIdQuery(orderId));
+        return Ok(result.Order);
     }
 
     /// <summary>

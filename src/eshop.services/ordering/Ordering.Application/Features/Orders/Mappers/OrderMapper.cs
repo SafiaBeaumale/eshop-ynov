@@ -1,7 +1,7 @@
 using Ordering.Application.Features.Orders.Dtos;
 using Ordering.Domain.Models;
 
-namespace Ordering.Application.Features.Orders.Queries.GetOrdersByCustomerId;
+namespace Ordering.Application.Features.Orders.Mappers;
 
 /// <summary>
 /// Maps Order domain entities to DTOs.
