@@ -4,6 +4,7 @@ using Ordering.Application.Features.Orders.Commands.CreateOrder;
 using Ordering.Application.Features.Orders.Commands.DeleteOrder;
 using Ordering.Application.Features.Orders.Commands.UpdateOrder;
 using Ordering.Application.Features.Orders.Dtos;
+using Ordering.Application.Features.Orders.Queries.GetOrdersByCustomerId;
 
 namespace Ordering.API.Controllers;
 
@@ -40,8 +41,8 @@ public class OrdersController(ISender sender) : ControllerBase
     [ProducesResponseType(typeof(NotFoundObjectResult), StatusCodes.Status404NotFound)]
     public async Task<ActionResult<IEnumerable<OrderDto>>> GetOrdersByCustomerId(Guid customerId)
     {
-        // TODO
-        return Ok();
+        var result = await sender.Send(new GetOrdersByCustomerIdQuery(customerId));
+        return Ok(result);
     }
 
 
