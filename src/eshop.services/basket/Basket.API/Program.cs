@@ -1,6 +1,8 @@
 using Basket.API.Data.Repositories;
+using Basket.API.Services;
 using BuildingBlocks.Behaviors;
 using BuildingBlocks.Middlewares;
+using Discount.Grpc;
 using FluentValidation;
 using HealthChecks.UI.Client;
 using Marten;
@@ -36,6 +38,24 @@ builder.Services.AddStackExchangeRedisCache(options =>
         options.InstanceName = "basket-api";
     }
    );
+
+builder.Services.AddGrpcClient<DiscountProtoService.DiscountProtoServiceClient>(options =>
+{
+    options.Address = new Uri(configuration.GetValue<string>("GrpcSettings:DiscountUrl") ?? string.Empty);
+}).ConfigurePrimaryHttpMessageHandler (() =>
+{
+    var handler = new HttpClientHandler();
+
+    if (builder.Environment.IsDevelopment())
+    {
+        handler.ServerCertificateCustomValidationCallback =
+            HttpClientHandler.DangerousAcceptAnyServerCertificateValidator;
+    }
+    return handler;
+});
+
+// Service de calcul des reductions
+builder.Services.AddScoped<IDiscountCalculatorService, DiscountCalculatorService>();
 
 builder.Services.AddControllers();
 

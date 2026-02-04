@@ -17,6 +17,7 @@ Un ADR est un document court qui capture une decision architecturale importante 
 | [ADR-005](005-docker-containerization.md)   | Conteneurisation Docker                 | Accepte | 2026 |
 | [ADR-006](006-microservice-monolithique.md) | Microservices vs Monolithique           | Accepte | 2026 |
 | [ADR-007](007-closedxml-epplus.md)          | ClosedXML pour Excel                    | Accepte | 2026 |
+| [ADR-008](008-grpc-rest-discount.md)        | gRPC vs REST pour Discount              | Accepte | 2026 |
 
 ## Resume des Decisions
 
@@ -31,6 +32,10 @@ Un ADR est un document court qui capture une decision architecturale importante 
 - **ADR-002** : Implementation du pattern CQRS (Command Query Responsibility Segregation) avec MediatR
 - **ADR-003** : Communication asynchrone entre services via RabbitMQ (Event-Driven Architecture)
 - **ADR-004** : Isolation des donnees avec une base de donnees par service
+
+### Communication Inter-Services
+
+- **ADR-008** : gRPC (HTTP/2 + Protobuf) choisi au lieu de REST pour la communication Basket → Discount (performance, contrat fort)
 
 ### Choix Techniques
 

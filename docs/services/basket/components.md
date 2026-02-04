@@ -21,6 +21,10 @@ flowchart TB
             subgraph commands["Commands"]
                 CreateCmd["CreateBasketCommand"]
                 DeleteCmd["DeleteBasketCommand"]
+                AddItemCmd["AddItemCommand"]
+                UpdateQtyCmd["UpdateItemQuantityCommand"]
+                DeleteItemCmd["DeleteBasketItemCommand"]
+                ValidateCmd["ValidateBasketCommand"]
             end
 
             subgraph queries["Queries"]
@@ -65,8 +69,8 @@ flowchart TB
     CachedRepo --> BaseRepo
     BaseRepo --> Marten
     Marten --> PostgreSQL
-    CmdHandlers -.-> gRPCClient
-    gRPCClient -.-> DiscountSvc
+    CmdHandlers -->|gRPC GetDiscount| gRPCClient
+    gRPCClient -->|HTTP/2 Protobuf| DiscountSvc
 ```
 
 ## Structure des Dossiers
@@ -82,9 +86,21 @@ Basket.API/
 │       │   │   ├── CreateBasketCommand.cs
 │       │   │   ├── CreateBasketHandler.cs
 │       │   │   └── CreateBasketValidator.cs
-│       │   └── DeleteBasket/
-│       │       ├── DeleteBasketCommand.cs
-│       │       └── DeleteBasketHandler.cs
+│       │   ├── DeleteBasket/
+│       │   │   ├── DeleteBasketCommand.cs
+│       │   │   └── DeleteBasketHandler.cs
+│       │   ├── AddItem/
+│       │   │   ├── AddItemCommand.cs
+│       │   │   └── AddItemCommandHandler.cs
+│       │   ├── UpdateItemQuantity/
+│       │   │   ├── UpdateItemQuantityCommand.cs
+│       │   │   └── UpdateItemQuantityCommandHandler.cs
+│       │   ├── DeleteBasketItem/
+│       │   │   ├── DeleteBasketItemCommand.cs
+│       │   │   └── DeleteBasketItemCommandHandler.cs
+│       │   └── ValidateBasket/
+│       │       ├── ValidateBasketCommand.cs
+│       │       └── ValidateBasketCommandHandler.cs
 │       └── Queries/
 │           └── GetBasketByUserName/
 │               ├── GetBasketByUserNameQuery.cs
@@ -92,13 +108,15 @@ Basket.API/
 ├── Models/
 │   ├── ShoppingCart.cs
 │   └── ShoppingCartItem.cs
+├── Protos/
+│   └── discount.proto              # Contrat gRPC partage avec Discount.Grpc
 ├── Data/
 │   └── Repositories/
 │       ├── IBasketRepository.cs
 │       ├── BasketRepository.cs
-│       └── CachedBasketRepository.cs
+│       └── BasketRepositoryCache.cs
 ├── Extensions/
-│   └── ServiceCollectionExtensions.cs
+│   └── DistributedCacheExtension.cs
 ├── Program.cs
 ├── Dockerfile
 └── appsettings.json
@@ -117,9 +135,13 @@ public class BasketsController : ControllerBase
 {
     private readonly ISender _sender;
 
-    // GET /baskets/{userName}
-    // POST /baskets/{userName}
-    // DELETE /baskets/{userName}
+    // GET    /baskets/{userName}                   → Consulter le panier
+    // POST   /baskets/{userName}                   → Creer/modifier le panier
+    // DELETE /baskets/{userName}                   → Supprimer le panier
+    // POST   /baskets/{userName}/items             → Ajouter un article
+    // PUT    /baskets/{userName}/items             → Modifier la quantite
+    // DELETE /baskets/{userName}/items/{productId} → Supprimer un article
+    // POST   /baskets/{userName}/checkout          → Valider le panier
 }
 ```
 
@@ -278,6 +300,40 @@ public class CachedBasketRepository : IBasketRepository
 | Items     | List<ShoppingCartItem> | Oui    |
 
 ### DeleteBasketCommand
+
+| Propriete | Type   | Requis |
+| --------- | ------ | ------ |
+| UserName  | string | Oui    |
+
+### AddItemCommand
+
+| Propriete   | Type   | Requis |
+| ----------- | ------ | ------ |
+| UserName    | string | Oui    |
+| ProductId   | Guid   | Oui    |
+| ProductName | string | Oui    |
+| Price       | decimal| Oui    |
+| Quantity    | int    | Oui    |
+| Color       | string | Non    |
+
+> Le handler `AddItemCommandHandler` appelle le service Discount via gRPC (`GetDiscount`) pour appliquer automatiquement la remise sur le prix de l'article avant de l'ajouter au panier.
+
+### UpdateItemQuantityCommand
+
+| Propriete | Type   | Requis |
+| --------- | ------ | ------ |
+| UserName  | string | Oui    |
+| ProductId | Guid   | Oui    |
+| Quantity  | int    | Oui    |
+
+### DeleteBasketItemCommand
+
+| Propriete | Type   | Requis |
+| --------- | ------ | ------ |
+| UserName  | string | Oui    |
+| ProductId | Guid   | Oui    |
+
+### ValidateBasketCommand
 
 | Propriete | Type   | Requis |
 | --------- | ------ | ------ |

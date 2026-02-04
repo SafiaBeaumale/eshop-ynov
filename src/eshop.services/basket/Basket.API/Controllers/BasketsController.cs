@@ -115,14 +115,15 @@ public class BasketsController (ISender sender) : ControllerBase
     /// <summary>
     /// Updates the quantity of a specific product in the user's shopping basket.
     /// </summary>
-    /// <param name="userName">The username whose shopping basket will be updated.</param>
-    /// <param name="command">The command containing the product ID and new quantity.</param>
+    /// <param name="userName">The username whose shopping basket will be updated (from URL).</param>
+    /// <param name="request">The request containing the product ID and new quantity.</param>
     /// <returns>The result of the update operation, including the updated cart.</returns>
     [HttpPut("items")]
     [ProducesResponseType(typeof(UpdateItemQuantityCommandResult), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(NotFoundObjectResult), StatusCodes.Status404NotFound)]
-    public async Task<ActionResult<UpdateItemQuantityCommandResult>> UpdateItemQuantity(string userName, [FromBody] UpdateItemQuantityCommand command)
+    public async Task<ActionResult<UpdateItemQuantityCommandResult>> UpdateItemQuantity(string userName, [FromBody] UpdateItemQuantityRequest request)
     {
+        var command = new UpdateItemQuantityCommand(userName, request.ProductId, request.Quantity);
         var result = await sender.Send(command);
         return Ok(result);
     }

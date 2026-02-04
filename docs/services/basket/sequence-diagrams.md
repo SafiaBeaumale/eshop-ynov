@@ -2,7 +2,7 @@
 
 ## Vue d'Ensemble
 
-Ce document presente les diagrammes de sequence pour les operations du service Basket, mettant en evidence le pattern Decorator pour le cache Redis.
+Ce document presente les diagrammes de sequence pour les operations du service Basket, mettant en evidence le pattern Decorator pour le cache Redis et l'integration gRPC avec le service Discount.
 
 ## Operations de Lecture
 
@@ -170,31 +170,136 @@ sequenceDiagram
     Controller-->>Client: 204 No Content
 ```
 
-## Integration avec Discount Service (Planifie)
+## Integration avec Discount Service (gRPC)
 
-### Application de Remise via gRPC
+### POST /baskets/{userName}/items - Ajout d'article avec remise
 
 ```mermaid
 sequenceDiagram
     autonumber
-    participant Handler as CreateBasketHandler
+    participant Client
+    participant Controller as BasketsController
+    participant Mediator as MediatR
+    participant Handler as AddItemCommandHandler
     participant gRPCClient as DiscountProtoService.Client
-    participant Discount as Discount.API
+    participant Discount as Discount.Grpc
+    participant DiscountDB as SQLite
+    participant CachedRepo as CachedBasketRepository
+    participant BaseRepo as BasketRepository
+    participant Marten as DocumentSession
+    participant DB as PostgreSQL
+    participant Redis as Redis Cache
 
-    Note over Handler,Discount: Pour chaque item du panier
+    Client->>Controller: POST /baskets/john_doe/items { productName, price, quantity }
+    Controller->>Controller: Create AddItemCommand
+    Controller->>Mediator: Send(command)
 
-    Handler->>Handler: Get item from basket
+    Mediator->>Handler: Handle(command)
+
+    Note over Handler,DiscountDB: Appel gRPC pour recuperer la remise
 
     Handler->>gRPCClient: GetDiscount(productName)
-    gRPCClient->>Discount: gRPC GetDiscount request
-    Discount->>Discount: Query discount for product
-    Discount-->>gRPCClient: DiscountResponse { amount }
-    gRPCClient-->>Handler: Discount amount
+    gRPCClient->>Discount: gRPC GetDiscount(GetDiscountRequest)
+    Discount->>DiscountDB: SELECT * FROM Coupon WHERE ProductName = ?
+    DiscountDB-->>Discount: Coupon data
+    Discount-->>gRPCClient: CouponModel { amount }
+    gRPCClient-->>Handler: CouponModel
 
-    Handler->>Handler: Apply discount to item price
-    Handler->>Handler: item.Price -= discount.Amount
+    Handler->>Handler: item.Price -= coupon.Amount
 
-    Note over Handler,Discount: Continue for next item
+    Note over Handler,Redis: Persistance du panier avec prix remise
+
+    Handler->>CachedRepo: StoreBasket(cart)
+    CachedRepo->>BaseRepo: StoreBasket(cart)
+    BaseRepo->>Marten: Store(cart)
+    BaseRepo->>Marten: SaveChangesAsync()
+    Marten->>DB: UPSERT mt_doc_shoppingcart
+    DB-->>Marten: Success
+    Marten-->>BaseRepo: Saved
+    BaseRepo-->>CachedRepo: ShoppingCart
+
+    CachedRepo->>Redis: SET basket:john_doe {json}
+    Redis-->>CachedRepo: OK
+
+    CachedRepo-->>Handler: ShoppingCart
+    Handler-->>Mediator: Result
+    Mediator-->>Controller: Result
+    Controller-->>Client: 200 OK { userName, items (with discount), total }
+```
+
+### PUT /baskets/{userName}/items - Modification de quantite
+
+```mermaid
+sequenceDiagram
+    autonumber
+    participant Client
+    participant Controller as BasketsController
+    participant Mediator as MediatR
+    participant Handler as UpdateItemQuantityHandler
+    participant CachedRepo as CachedBasketRepository
+    participant BaseRepo as BasketRepository
+    participant DB as PostgreSQL
+    participant Redis as Redis Cache
+
+    Client->>Controller: PUT /baskets/john_doe/items { productId, quantity }
+    Controller->>Controller: Create UpdateItemQuantityCommand
+    Controller->>Mediator: Send(command)
+
+    Mediator->>Handler: Handle(command)
+    Handler->>CachedRepo: GetBasket("john_doe")
+    CachedRepo-->>Handler: ShoppingCart
+
+    Handler->>Handler: Find item by productId
+    Handler->>Handler: Update item.Quantity
+
+    Handler->>CachedRepo: StoreBasket(cart)
+    CachedRepo->>BaseRepo: StoreBasket(cart)
+    BaseRepo->>DB: UPSERT
+    DB-->>BaseRepo: Success
+    BaseRepo-->>CachedRepo: ShoppingCart
+    CachedRepo->>Redis: SET basket:john_doe {json}
+    CachedRepo-->>Handler: ShoppingCart
+
+    Handler-->>Mediator: Result
+    Mediator-->>Controller: Result
+    Controller-->>Client: 200 OK { updated cart }
+```
+
+### DELETE /baskets/{userName}/items/{productId} - Suppression d'article
+
+```mermaid
+sequenceDiagram
+    autonumber
+    participant Client
+    participant Controller as BasketsController
+    participant Mediator as MediatR
+    participant Handler as DeleteBasketItemHandler
+    participant CachedRepo as CachedBasketRepository
+    participant BaseRepo as BasketRepository
+    participant DB as PostgreSQL
+    participant Redis as Redis Cache
+
+    Client->>Controller: DELETE /baskets/john_doe/items/{productId}
+    Controller->>Controller: Create DeleteBasketItemCommand
+    Controller->>Mediator: Send(command)
+
+    Mediator->>Handler: Handle(command)
+    Handler->>CachedRepo: GetBasket("john_doe")
+    CachedRepo-->>Handler: ShoppingCart
+
+    Handler->>Handler: Remove item by productId
+
+    Handler->>CachedRepo: StoreBasket(cart)
+    CachedRepo->>BaseRepo: StoreBasket(cart)
+    BaseRepo->>DB: UPSERT
+    DB-->>BaseRepo: Success
+    BaseRepo-->>CachedRepo: ShoppingCart
+    CachedRepo->>Redis: SET basket:john_doe {json}
+    CachedRepo-->>Handler: ShoppingCart
+
+    Handler-->>Mediator: Result
+    Mediator-->>Controller: Result
+    Controller-->>Client: 200 OK { updated cart }
 ```
 
 ## Pattern Decorator en Detail

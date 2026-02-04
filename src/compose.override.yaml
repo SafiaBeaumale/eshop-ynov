@@ -1,4 +1,4 @@
-﻿services:
+services:
   ### Service Catalog ###
   
   catalog.database:
@@ -24,6 +24,7 @@
     environment:
       - ASPNETCORE_HTTP_PORTS=${CATALOG_API_PORT}
       - ConnectionStrings__CatalogConnection=Server=catalog.database;Port=${CATALOG_POSTGRES_PORT};Database=${CATALOG_POSTGRES_DB};Username=${CATALOG_POSTGRES_USER};Password=${CATALOG_POSTGRES_PASSWORD}
+      - GrpcSettings__DiscountUrl=http://discount.grpc:${DISCOUNT_API_PORT}
   
   ### Service Basket ###
   
@@ -64,3 +65,13 @@
       - ASPNETCORE_HTTP_PORTS=${BASKET_API_PORT}
       - ConnectionStrings__BasketConnection=Server=basket.database;Port=5432;Database=${BASKET_POSTGRES_DB};Username=${BASKET_POSTGRES_USER};Password=${BASKET_POSTGRES_PASSWORD}
       - ConnectionStrings__RedisConnection=basket.redis:6379
+      - GrpcSettings__DiscountUrl=http://discount.grpc:${DISCOUNT_API_PORT}
+        
+  ### Service Discount ###
+  
+  discount.grpc:
+    ports:
+      - "6062:${DISCOUNT_API_PORT}" #http
+    environment:
+      - ASPNETCORE_HTTP_PORTS=${DISCOUNT_API_PORT}
+      - ConnectionStrings__DiscountConnection=Data Source = discountDatabase

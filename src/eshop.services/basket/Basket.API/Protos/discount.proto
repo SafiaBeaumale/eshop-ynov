@@ -1,0 +1,62 @@
+syntax = "proto3";
+
+option csharp_namespace = "Discount.Grpc";
+
+package discount;
+
+// Enum pour le type de reduction
+enum DiscountType {
+  PERCENTAGE = 0;    // Reduction en pourcentage (ex: 20 = -20%)
+  FIXED_AMOUNT = 1;  // Reduction en montant fixe (ex: 5 = -5 euros)
+}
+
+// The discount service definition.
+service DiscountProtoService {
+
+  //Discount CRUD operations
+  rpc GetDiscount (GetDiscountRequest) returns (CouponModel);
+  rpc GetDiscounts (GetDiscountsRequest) returns (GetDiscountsResponse);
+  rpc CreateDiscount (CreateDiscountRequest) returns (CouponModel);
+  rpc UpdateDiscount (UpdateDiscountRequest) returns (CouponModel);
+  rpc DeleteDiscount (DeleteDiscountRequest) returns (DeleteDiscountResponse);
+
+}
+
+message GetDiscountRequest {
+  string productName = 1;
+}
+
+// Nouveau : recuperer tous les coupons pour un produit (cumulabilite)
+message GetDiscountsRequest {
+  string productName = 1;
+  bool includeGlobal = 2;  // Inclure les coupons globaux
+}
+
+message GetDiscountsResponse {
+  repeated CouponModel coupons = 1;
+}
+
+message CouponModel {
+  int32 id = 1;
+  string productName = 2;
+  string description = 3;
+  double amount = 4;
+  DiscountType type = 5;
+  bool isGlobal = 6;
+}
+
+message CreateDiscountRequest {
+  CouponModel coupon = 1;
+}
+
+message UpdateDiscountRequest {
+  CouponModel coupon = 1;
+}
+
+message DeleteDiscountRequest {
+  CouponModel coupon = 1;
+}
+
+message DeleteDiscountResponse {
+  bool success = 1;
+}

@@ -2,7 +2,7 @@
 
 ## Vue d'Ensemble
 
-Le service Basket gere les paniers d'achat des utilisateurs. Il permet de creer, consulter et supprimer des paniers, avec un systeme de cache Redis pour optimiser les performances.
+Le service Basket gere les paniers d'achat des utilisateurs. Il permet de creer, consulter, modifier et supprimer des paniers, avec un systeme de cache Redis pour optimiser les performances. Il communique avec le service Discount via gRPC pour appliquer automatiquement les remises sur les articles.
 
 ## Acteurs
 
@@ -110,29 +110,97 @@ Le service Basket gere les paniers d'achat des utilisateurs. Il permet de creer,
 
 ---
 
-### UC-BAS-04 : Appliquer une Remise (Planifie)
+### UC-BAS-04 : Ajouter un Article au Panier
 
-**Acteur** : Systeme
+**Acteur** : Client
 
-**Description** : Permet d'appliquer une remise sur un article du panier via le service Discount.
+**Description** : Permet d'ajouter un article au panier. Le service interroge automatiquement le service Discount via gRPC pour appliquer la remise applicable.
 
 **Preconditions** :
 
 - Le panier doit exister
-- Le service Discount doit etre disponible
+- Le service Discount doit etre disponible (gRPC)
 
 **Flux Principal** :
 
-1. Le systeme recupere le panier
-2. Pour chaque item, appel gRPC au service Discount
-3. Le service Discount retourne le montant de remise
-4. Le systeme applique la remise sur l'item
-5. Le systeme recalcule le total
-6. Le systeme retourne le panier avec remises
+1. Le client envoie une requete POST /baskets/{userName}/items avec les details de l'article
+2. Le systeme valide les donnees
+3. Le systeme appelle le service Discount via gRPC (`GetDiscount`) pour recuperer la remise applicable
+4. Le systeme applique la remise sur le prix de l'article (`price -= discount.Amount`)
+5. Le systeme ajoute l'article au panier
+6. Le systeme persiste le panier et met a jour le cache Redis
+7. Le systeme retourne le panier mis a jour
+
+**Flux Alternatif** :
+
+- 2a. Validation echouee : retourne 400 Bad Request
+- 3a. Aucune remise trouvee (NOT_FOUND gRPC) : l'article est ajoute sans remise
 
 ---
 
-### UC-BAS-05 : Vider le Panier apres Commande (Planifie)
+### UC-BAS-05 : Modifier la Quantite d'un Article
+
+**Acteur** : Client
+
+**Description** : Permet de modifier la quantite d'un article existant dans le panier.
+
+**Preconditions** : Le panier et l'article doivent exister
+
+**Flux Principal** :
+
+1. Le client envoie une requete PUT /baskets/{userName}/items avec le productId et la nouvelle quantite
+2. Le systeme valide les donnees
+3. Le systeme met a jour la quantite de l'article
+4. Le systeme persiste le panier et met a jour le cache Redis
+5. Le systeme retourne le panier mis a jour
+
+**Flux Alternatif** :
+
+- 2a. Validation echouee : retourne 400 Bad Request
+- 3a. Article non trouve : retourne 404 Not Found
+
+---
+
+### UC-BAS-06 : Supprimer un Article du Panier
+
+**Acteur** : Client
+
+**Description** : Permet de supprimer un article specifique du panier.
+
+**Preconditions** : Le panier et l'article doivent exister
+
+**Flux Principal** :
+
+1. Le client envoie une requete DELETE /baskets/{userName}/items/{productId}
+2. Le systeme recherche l'article dans le panier
+3. Le systeme supprime l'article
+4. Le systeme persiste le panier et met a jour le cache Redis
+5. Le systeme retourne le panier mis a jour
+
+**Flux Alternatif** :
+
+- 2a. Article non trouve : retourne 404 Not Found
+
+---
+
+### UC-BAS-07 : Valider le Panier (Checkout)
+
+**Acteur** : Client
+
+**Description** : Valide le panier pour passer a la commande.
+
+**Preconditions** : Le panier doit exister et contenir au moins un article
+
+**Flux Principal** :
+
+1. Le client envoie une requete POST /baskets/{userName}/checkout
+2. Le systeme recupere le panier
+3. Le systeme valide le contenu du panier
+4. Le systeme retourne la confirmation
+
+---
+
+### UC-BAS-08 : Vider le Panier apres Commande (Planifie)
 
 **Acteur** : Systeme (Ordering Service)
 
@@ -163,18 +231,24 @@ flowchart TB
         UC01["UC-BAS-01<br/>Consulter Panier"]
         UC02["UC-BAS-02<br/>Creer/Modifier Panier"]
         UC03["UC-BAS-03<br/>Supprimer Panier"]
-        UC04["UC-BAS-04<br/>Appliquer Remise<br/>(Planifie)"]
-        UC05["UC-BAS-05<br/>Vider apres Commande<br/>(Planifie)"]
+        UC04["UC-BAS-04<br/>Ajouter Article"]
+        UC05["UC-BAS-05<br/>Modifier Quantite"]
+        UC06["UC-BAS-06<br/>Supprimer Article"]
+        UC07["UC-BAS-07<br/>Checkout"]
+        UC08["UC-BAS-08<br/>Vider apres Commande<br/>(Planifie)"]
     end
 
     Client --> UC01
     Client --> UC02
     Client --> UC03
+    Client --> UC04
+    Client --> UC05
+    Client --> UC06
+    Client --> UC07
 
-    UC02 -.-> UC04
-    UC04 -.-> Discount
+    UC04 -->|gRPC| Discount
 
-    Ordering -.-> UC05
+    Ordering -.-> UC08
 ```
 
 ## Modele de Donnees
@@ -203,9 +277,20 @@ flowchart TB
 
 ## API Endpoints
 
-| Methode | Endpoint            | Description              |
-| ------- | ------------------- | ------------------------ |
-| GET     | /baskets/{userName} | Recuperer le panier      |
-| POST    | /baskets/{userName} | Creer/modifier le panier |
-| DELETE  | /baskets/{userName} | Supprimer le panier      |
-| GET     | /health             | Health check             |
+| Methode | Endpoint                               | Description                    |
+| ------- | -------------------------------------- | ------------------------------ |
+| GET     | /baskets/{userName}                    | Recuperer le panier            |
+| POST    | /baskets/{userName}                    | Creer/modifier le panier       |
+| DELETE  | /baskets/{userName}                    | Supprimer le panier            |
+| POST    | /baskets/{userName}/items              | Ajouter un article au panier   |
+| PUT     | /baskets/{userName}/items              | Modifier la quantite d'un article |
+| DELETE  | /baskets/{userName}/items/{productId}  | Supprimer un article du panier |
+| POST    | /baskets/{userName}/checkout           | Valider le panier (checkout)   |
+| GET     | /health                                | Health check                   |
+
+## Communication Inter-Services
+
+| Service | Protocole | Usage |
+| --- | --- | --- |
+| Discount.Grpc | gRPC (HTTP/2 + Protobuf) | Recuperation des remises lors de l'ajout d'articles |
+| Ordering (Planifie) | RabbitMQ (Event-Driven) | Reception de l'evenement OrderCreated pour vider le panier |

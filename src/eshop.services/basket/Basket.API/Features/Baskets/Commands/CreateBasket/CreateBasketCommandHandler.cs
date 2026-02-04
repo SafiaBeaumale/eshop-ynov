@@ -1,5 +1,5 @@
 using Basket.API.Data.Repositories;
-using Basket.API.Models;
+using Basket.API.Services;
 using BuildingBlocks.CQRS;
 
 namespace Basket.API.Features.Baskets.Commands.CreateBasket;
@@ -8,7 +8,9 @@ namespace Basket.API.Features.Baskets.Commands.CreateBasket;
 /// Handles the creation of a shopping basket by processing the CreateBasketCommand.
 /// Implements the <see cref="ICommandHandler{CreateBasketCommand, CreateBasketCommandResult}"/> interface.
 /// </summary>
-public class CreateBasketCommandHandler(IBasketRepository repository) : ICommandHandler<CreateBasketCommand, CreateBasketCommandResult>
+public class CreateBasketCommandHandler(
+    IBasketRepository repository,
+    IDiscountCalculatorService discountCalculator) : ICommandHandler<CreateBasketCommand, CreateBasketCommandResult>
 {
     /// <summary>
     /// Handles the request to create a shopping basket.
@@ -21,27 +23,12 @@ public class CreateBasketCommandHandler(IBasketRepository repository) : ICommand
     {
         var cart = request.Cart;
 
-        await ApplyDiscountToItemAsync(cart, cancellationToken);
+        // Calculer le total avec les reductions (pourcentages d'abord, puis montants fixes, cumulables)
+        cart.TotalAfterDiscount = await discountCalculator.CalculateTotalAfterDiscountAsync(cart, cancellationToken);
 
         var basketCart = await repository.CreateBasketAsync(cart, cancellationToken)
             .ConfigureAwait(false);
 
         return new CreateBasketCommandResult(true, basketCart.UserName);
-    }
-
-    /// <summary>
-    /// Applies a discount to each item in the specified shopping cart.
-    /// </summary>
-    /// <param name="cart">The shopping cart containing the items to which the discount will be applied.</param>
-    /// <param name="cancellationToken">A token to observe while waiting for the operation to complete.</param>
-    /// <returns>A task that represents the asynchronous operation of applying discounts to the items.</returns>
-    private async Task ApplyDiscountToItemAsync(ShoppingCart cart, CancellationToken cancellationToken)
-    {
-        foreach (var item in cart.Items)
-        {
-            // TODO in the futur by applying discount on all product
-            
-            item.Price -= 0;
-        }
     }
 }
