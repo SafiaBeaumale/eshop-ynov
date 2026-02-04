@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using Ordering.Application.Features.Orders.Commands.CreateOrder;
 using Ordering.Application.Features.Orders.Commands.DeleteOrder;
 using Ordering.Application.Features.Orders.Commands.UpdateOrder;
+using Ordering.Application.Features.Orders.Commands.UpdateOrderStatus;
 using Ordering.Application.Features.Orders.Dtos;
 using Ordering.Application.Features.Orders.Queries.GetOrders;
 using Ordering.Application.Features.Orders.Queries.GetOrdersById;
@@ -86,6 +87,21 @@ public class OrdersController(ISender sender) : ControllerBase
     public async Task<ActionResult<bool>> UpdateOrder([FromBody] OrderDto order)
     {
         var result = await sender.Send(new UpdateOrderCommand(order));
+        return Ok(result.IsSuccess);
+    }
+
+    /// <summary>
+    /// Updates the status of an existing order.
+    /// </summary>
+    /// <param name="orderId">The unique identifier of the order to update.</param>
+    /// <param name="request">The request containing the new status.</param>
+    /// <returns>A boolean result indicating whether the status update was successful.</returns>
+    [HttpPut("{orderId:guid}")]
+    [ProducesResponseType(typeof(bool), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(NotFoundObjectResult), StatusCodes.Status404NotFound)]
+    public async Task<ActionResult<bool>> UpdateOrderStatus(Guid orderId, [FromBody] UpdateOrderStatusRequest request)
+    {
+        var result = await sender.Send(new UpdateOrderStatusCommand(orderId, request.Status));
         return Ok(result.IsSuccess);
     }
 

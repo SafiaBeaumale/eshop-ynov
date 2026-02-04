@@ -108,8 +108,18 @@ public class Order : Aggregate<OrderId>
         BillingAddress = billingAddress;
         Payment = payment;
         OrderStatus  = orderStatus;
-        
+
         AddDomainEvent(new OrderUpdatedEvent(this));
 
+    }
+
+    /// <summary>
+    /// Updates only the status of the order.
+    /// </summary>
+    /// <param name="orderStatus">The new status of the order.</param>
+    public void UpdateStatus(OrderStatus orderStatus)
+    {
+        OrderStatus = orderStatus;
+        AddDomainEvent(new OrderUpdatedEvent(this));
     }
 }
