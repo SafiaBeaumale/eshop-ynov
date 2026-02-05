@@ -17,7 +17,7 @@
             "header": [],
             "body": {
               "mode": "raw",
-              "raw": "{\n    \"name\":\"Produit B\",\n    \"Categories\":[\"c1\",\"c2\"],\n    \"description\": \"Description Product C\",\n    \"imageFile\" : \"Image file Product C\",\n    \"price\": 399\n}",
+              "raw": "{\n    \"name\":\"Super telephone\",\n    \"Categories\":[\"phone\"],\n    \"description\": \"Phone Pro\",\n    \"imageFile\" : \"https://images.unsplash.com/photo-1525598912003-663126343e1f?q=80&w=1170&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D\",\n    \"price\": 150\n}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -114,32 +114,32 @@
             "method": "DELETE",
             "header": [],
             "url": {
-              "raw": "{{catalog_api_url}}/products/019bb7da-3e5f-4069-965e-01b1952c5248",
+              "raw": "{{catalog_api_url}}/products/019c2d56-48c7-462d-b696-c6ebf6e28216",
               "host": [
                 "{{catalog_api_url}}"
               ],
               "path": [
                 "products",
-                "019bb7da-3e5f-4069-965e-01b1952c5248"
+                "019c2d56-48c7-462d-b696-c6ebf6e28216"
               ]
             }
           },
           "response": []
         },
         {
-          "name": "Récupération des produits par Category",
+          "name": "Récupération des produits par catégorie",
           "request": {
             "method": "GET",
             "header": [],
             "url": {
-              "raw": "{{catalog_api_url}}/products/category/Accessories",
+              "raw": "{{catalog_api_url}}/products/category/phone",
               "host": [
                 "{{catalog_api_url}}"
               ],
               "path": [
                 "products",
                 "category",
-                "Accessories"
+                "phone"
               ]
             }
           },
@@ -220,13 +220,13 @@
             "method": "GET",
             "header": [],
             "url": {
-              "raw": "{{basket_api_url}}/baskets/swn",
+              "raw": "{{basket_api_url}}/baskets/guest",
               "host": [
                 "{{basket_api_url}}"
               ],
               "path": [
                 "baskets",
-                "swn"
+                "guest"
               ]
             }
           },
@@ -402,7 +402,123 @@
     },
     {
       "name": "Discount",
-      "item": []
+      "item": [
+        {
+          "name": "Récupérer les réductions d'un produit",
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          },
+          "request": {
+            "method": "GET",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"name\":\"Produit B\",\n    \"Categories\":[\"c1\",\"c2\"],\n    \"description\": \"Description Product C\",\n    \"imageFile\" : \"Image file Product C\",\n    \"price\": 399\n}"
+            },
+            "url": {
+              "raw": "{{discount_api_rest_url}}/discounts/product?productName=Super%20telephone",
+              "host": [
+                "{{discount_api_rest_url}}"
+              ],
+              "path": [
+                "discounts",
+                "product"
+              ],
+              "query": [
+                {
+                  "key": "productName",
+                  "value": "Super%20telephone"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Création d'une réduction",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n  \"coupon\": {\r\n    \"productName\": \"IPhone X\",\r\n    \"description\": \"Réduction MacBook Pro\",\r\n    \"amount\": 200.0\r\n  }\r\n}\r\n",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{discount_api_url}}/discount",
+              "host": [
+                "{{discount_api_url}}"
+              ],
+              "path": [
+                "discount"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Modifier une réduction",
+          "request": {
+            "method": "PUT",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"coupon\": {\n    \"productName\": \"IPhone X\",\n    \"description\": \"Réduction MacBook Pro\",\n    \"amount\": 200.0\n  }\n}\n"
+            },
+            "url": {
+              "raw": "{{discount_api_url}}/discount/x",
+              "host": [
+                "{{discount_api_url}}"
+              ],
+              "path": [
+                "discount",
+                "x"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Suppression d'une réduction",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{discount_api_url}}/discount/x",
+              "host": [
+                "{{discount_api_url}}"
+              ],
+              "path": [
+                "discount",
+                "x"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Récupérer les réductions gloables",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{discount_api_rest_url}}/discounts/global",
+              "host": [
+                "{{discount_api_rest_url}}"
+              ],
+              "path": [
+                "discounts",
+                "global"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
     },
     {
       "name": "Ordering",

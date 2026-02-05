@@ -102,6 +102,13 @@ services:
       - ASPNETCORE_HTTP_PORTS=${DISCOUNT_API_PORT}
       - ConnectionStrings__DiscountConnection=Data Source = discountDatabase
 
+  discount.api:
+    ports:
+      - "6064:${DISCOUNT_REST_API_PORT}" #http
+    environment:
+      - ASPNETCORE_HTTP_PORTS=${DISCOUNT_REST_API_PORT}
+      - ConnectionStrings__DiscountConnection=Data Source = discountApiDatabase
+
   ### Service Ordering ###
   ordering.database:
     restart: always

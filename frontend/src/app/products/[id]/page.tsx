@@ -152,22 +152,6 @@ export default function ProductDetailPage() {
                   className="object-cover"
                   priority
                 />
-
-                {/* Wishlist button */}
-                <motion.button
-                  whileHover={{ scale: 1.1 }}
-                  whileTap={{ scale: 0.9 }}
-                  onClick={() => setIsWishlisted(!isWishlisted)}
-                  className="absolute top-4 right-4 h-10 w-10 rounded-full bg-background/80 backdrop-blur-sm flex items-center justify-center shadow-lg"
-                >
-                  <Heart
-                    className={`h-5 w-5 transition-colors ${
-                      isWishlisted
-                        ? "fill-red-500 text-red-500"
-                        : "text-muted-foreground"
-                    }`}
-                  />
-                </motion.button>
               </motion.div>
             </div>
           </motion.div>

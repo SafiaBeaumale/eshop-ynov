@@ -143,7 +143,7 @@ export default function CartPage() {
                           className="relative h-24 w-24 shrink-0 rounded-lg overflow-hidden bg-muted"
                         >
                           <Image
-                            src="https://images.unsplash.com/photo-1695048133142-1a20484d2569?w=200&q=80"
+                            src={item.imageFile}
                             alt={item.productName}
                             fill
                             className="object-cover"

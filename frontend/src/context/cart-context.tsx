@@ -91,6 +91,7 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
           price: product.price,
           quantity,
           color,
+          imageFile: product.imageFile,
         };
         await basketApi.addItem(userName, item);
         await refreshCart();

@@ -22,6 +22,7 @@ export interface ShoppingCartItem {
   productName: string;
   price: number;
   productId: string;
+  imageFile: string;
 }
 
 export interface ShoppingCart {
