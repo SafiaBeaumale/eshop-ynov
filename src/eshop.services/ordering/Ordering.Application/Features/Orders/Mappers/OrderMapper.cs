@@ -41,6 +41,7 @@ public static class OrderMapper
         var orderItems = order.OrderItems.Select(item => new OrderItemDto(
             item.OrderId.Value,
             item.ProductId.Value,
+            item.ProductName,
             item.Quantity,
             item.Price)).ToList();
 

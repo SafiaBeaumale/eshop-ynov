@@ -59,7 +59,7 @@ export function Footer() {
           <motion.div variants={itemVariants} className="lg:col-span-2">
             <Link href="/" className="flex items-center gap-2 mb-4">
               <Cpu className="h-8 w-8 text-primary" />
-              <span className="text-xl font-bold bg-linear-to-r from-primary to-purple-600 bg-clip-text text-transparent">
+              <span className="text-xl font-bold bg-linear-to-r from-primary to-orange-600 bg-clip-text text-transparent">
                 TechShop
               </span>
             </Link>
@@ -145,10 +145,16 @@ export function Footer() {
             &copy; {new Date().getFullYear()} TechShop. Tous droits réservés.
           </p>
           <div className="flex gap-4">
-            <Link href="/politique-confidentialite" className="hover:text-primary transition-colors">
+            <Link
+              href="/politique-confidentialite"
+              className="hover:text-primary transition-colors"
+            >
               Politique de confidentialité
             </Link>
-            <Link href="/conditions-utilisation" className="hover:text-primary transition-colors">
+            <Link
+              href="/conditions-utilisation"
+              className="hover:text-primary transition-colors"
+            >
               Conditions d&apos;utilisation
             </Link>
           </div>
