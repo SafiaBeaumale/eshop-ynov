@@ -18,8 +18,19 @@ public static class ServiceExtension
     /// <returns>The updated service collection with API-specific services registered.</returns>
     public static IServiceCollection AddApiServices(this IServiceCollection services, IConfiguration configuration)
     {
+        // CORS for frontend
+        services.AddCors(options =>
+        {
+            options.AddDefaultPolicy(policy =>
+            {
+                policy.AllowAnyOrigin()
+                      .AllowAnyHeader()
+                      .AllowAnyMethod();
+            });
+        });
+
         services.AddControllers();
-        
+
         services.AddOpenApi();
 
         var connectionString = configuration.GetConnectionString("OrderingConnection");
@@ -38,6 +49,8 @@ public static class ServiceExtension
     {
         if (app.Environment.IsProduction())
             app.UseHttpsRedirection();
+
+        app.UseCors();
 
         app.UseAuthorization();
         
