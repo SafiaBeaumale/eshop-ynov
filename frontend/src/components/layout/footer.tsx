@@ -59,7 +59,7 @@ export function Footer() {
           <motion.div variants={itemVariants} className="lg:col-span-2">
             <Link href="/" className="flex items-center gap-2 mb-4">
               <Cpu className="h-8 w-8 text-primary" />
-              <span className="text-xl font-bold bg-linear-to-r from-primary to-orange-600 bg-clip-text text-transparent">
+              <span className="text-xl font-bold bg-linear-to-r from-primary via-yellow-500 to-orange-600 bg-clip-text text-transparent">
                 TechShop
               </span>
             </Link>

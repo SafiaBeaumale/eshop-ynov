@@ -69,7 +69,7 @@ export function PromoSection() {
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
-          className="relative overflow-hidden rounded-3xl bg-linear-to-br from-primary via-purple-600 to-pink-600 p-8 md:p-12"
+          className="relative overflow-hidden rounded-3xl bg-linear-to-br from-primary via-yellow-600 to-orange-600 p-8 md:p-12"
         >
           {/* Background decoration */}
           <div className="absolute inset-0 overflow-hidden">

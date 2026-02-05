@@ -64,7 +64,7 @@ export function Header() {
           <motion.span
             initial={{ opacity: 0, x: -20 }}
             animate={{ opacity: 1, x: 0 }}
-            className="text-xl font-bold bg-linear-to-r from-primary to-orange-600 bg-clip-text text-transparent"
+            className="text-xl font-bold bg-linear-to-r from-primary via-yellow-500 to-orange-600 bg-clip-text text-transparent"
           >
             TechShop
           </motion.span>

@@ -75,7 +75,7 @@ export function Hero() {
             className="text-4xl md:text-6xl lg:text-7xl font-bold tracking-tight mb-6"
           >
             La technologie de{" "}
-            <span className="bg-linear-to-r from-primary via-purple-500 to-pink-500 bg-clip-text text-transparent">
+            <span className="bg-linear-to-r from-primary via-yellow-500 to-orange-500 bg-clip-text text-transparent">
               demain
             </span>
             <br />
