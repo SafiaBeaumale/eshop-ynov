@@ -113,13 +113,16 @@ services:
       ACCEPT_EULA: "Y"
       MSSQL_SA_PASSWORD: ${ORDERING_SQLSERVER_SA_PASSWORD}
     healthcheck:
-      test: [ "CMD-SHELL", "/opt/mssql-tools/bin/sqlcmd -S localhost -U sa -P ${ORDERING_SQLSERVER_SA_PASSWORD} -Q 'SELECT 1'" ]
+      test: [ "CMD-SHELL", "/opt/mssql-tools18/bin/sqlcmd -S localhost -U sa -P ${ORDERING_SQLSERVER_SA_PASSWORD} -C -Q 'SELECT 1'" ]
       interval: 30s
       timeout: 10s
       retries: 5
       start_period: 60s
   
   ordering.api:
+    depends_on:
+      ordering.database:
+        condition: service_healthy
     ports:
       - "6063:${ORDERING_API_PORT}" #http
     environment:
