@@ -9,6 +9,7 @@ var configuration = builder.Configuration;
 
 // Add services to the container.
 builder.Services.AddGrpc();
+builder.Services.AddGrpcReflection();
 
 builder.Services.AddDbContext<DiscountContext>(options => options.UseSqlite(configuration.GetConnectionString("DiscountConnection")));
 
@@ -18,6 +19,7 @@ app.UseCustomMigration();
 
 // Configure the HTTP request pipeline.
 app.MapGrpcService<DiscountServiceServer>();
+app.MapGrpcReflectionService();
 
 app.MapGet("/",
     () =>

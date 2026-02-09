@@ -39,19 +39,23 @@ public static class OrderMapperExtensions
         var paymentDto = new PaymentDto(message.CardName, message.CardNumber, message.Expiration, message.Cvv, message.PaymentMethod);
         var orderId = Guid.NewGuid();
 
+        var orderItems = message.Items.Select(item => new OrderItemDto(
+            orderId,
+            item.ProductId,
+            item.ProductName,
+            item.Quantity,
+            item.Price
+        )).ToList();
+
         var orderDto = new OrderDto(
             Id: orderId,
             CustomerId: message.CustomerId,
-            OrderName: $"{message.UserName} - {message.UserName}",
+            OrderName: $"ORD-{message.FirstName}-{DateTime.UtcNow:yyyyMMddHHmmss}",
             ShippingAddress: addressDto,
             BillingAddress: addressDto,
             Payment: paymentDto,
             OrderStatus: Ordering.Domain.Enums.OrderStatus.Pending,
-            OrderItems:
-            [
-                new OrderItemDto(orderId, new Guid("5334c996-8457-4cf0-815c-ed2b77c4ff61"), 2, 500),
-                new OrderItemDto(orderId, new Guid("c67d6323-e8b1-4bdf-9a75-b0d0d2e7e914"), 1, 400)
-            ]);
+            OrderItems: orderItems);
 
         return new CreateOrderCommand(orderDto);
     }
@@ -77,7 +81,7 @@ public static class OrderMapperExtensions
                 order.Payment.CVV, order.Payment.PaymentMethod),
             OrderStatus: order.OrderStatus,
             OrderItems: order.OrderItems.Select(oi =>
-                new OrderItemDto(oi.OrderId.Value, oi.ProductId.Value, oi.Quantity, oi.Price)).ToList()
+                new OrderItemDto(oi.OrderId.Value, oi.ProductId.Value, oi.ProductName, oi.Quantity, oi.Price)).ToList()
         );
     }
     

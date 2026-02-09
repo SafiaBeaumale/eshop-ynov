@@ -15,6 +15,7 @@ public class ProductConfiguration : IEntityTypeConfiguration<Product>
             dbId => ProductId.Of(dbId)
         );
         builder.Property(c => c.Name).HasMaxLength(100).IsRequired();
+        builder.Property(c => c.Price).HasPrecision(18, 2);
         builder.HasIndex(c => c.Name).IsUnique();
     }
 }

@@ -21,7 +21,7 @@ public class OrderConfiguration : IEntityTypeConfiguration<Order>
             .HasForeignKey(c => c.CustomerId)
             .IsRequired();
 
-        builder.HasMany<OrderItem>()
+        builder.HasMany(o => o.OrderItems)
             .WithOne()
             .HasForeignKey(c => c.OrderId);
 
@@ -114,10 +114,11 @@ public class OrderConfiguration : IEntityTypeConfiguration<Order>
         
         builder.Property(c => c.OrderStatus)
             .HasDefaultValue(OrderStatus.Draft)
+            .HasSentinel((OrderStatus)0)
             .HasConversion(s => s.ToString(), dbStatus => Enum.Parse<OrderStatus>(dbStatus))
             .IsRequired();
-        
-        builder.Property(c => c.TotalPrice).IsRequired();
+
+        builder.Property(c => c.TotalPrice).HasPrecision(18, 2).IsRequired();
         
 
     }

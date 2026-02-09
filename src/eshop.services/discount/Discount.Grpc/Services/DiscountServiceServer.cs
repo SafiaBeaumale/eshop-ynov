@@ -117,8 +117,8 @@ public class DiscountServiceServer(DiscountContext dbContext, ILogger<DiscountSe
             throw new RpcException(new Status(StatusCode.InvalidArgument, "Coupon is null"));
 
         logger.LogInformation("Deleting discount for {ProductName}", request.Coupon.ProductName);
-        
-        var coupon = await dbContext.Coupons.FirstOrDefaultAsync(x => x.ProductName == request.Coupon.ProductName 
+
+        var coupon = await dbContext.Coupons.FirstOrDefaultAsync(x => x.ProductName == request.Coupon.ProductName
                                                                       || x.Id == request.Coupon.Id);
         if(coupon is null)
             throw new RpcException(new Status(StatusCode.NotFound, $"Coupon with name {request.Coupon.ProductName} " +
@@ -126,7 +126,47 @@ public class DiscountServiceServer(DiscountContext dbContext, ILogger<DiscountSe
         dbContext.Coupons.Remove(coupon);
         await dbContext.SaveChangesAsync();
         logger.LogInformation("Discount deleted for {ProductName}", coupon.ProductName);
-        
+
         return new DeleteDiscountResponse(){Success = true};
+    }
+
+    /// <summary>
+    /// Retrieves all applicable discounts for a given product, optionally including global discounts.
+    /// </summary>
+    /// <param name="request">The request containing the product name and whether to include global coupons.</param>
+    /// <param name="context">The gRPC server call context.</param>
+    /// <returns>
+    /// Returns a <see cref="GetDiscountsResponse"/> containing all applicable coupons,
+    /// sorted by type (percentages first, then fixed amounts).
+    /// </returns>
+    public override async Task<GetDiscountsResponse> GetDiscounts(GetDiscountsRequest request, ServerCallContext context)
+    {
+        logger.LogInformation("Retrieving all discounts for {ProductName}, includeGlobal: {IncludeGlobal}",
+            request.ProductName, request.IncludeGlobal);
+
+        var query = dbContext.Coupons.AsQueryable();
+
+        if (request.IncludeGlobal)
+        {
+            // Récupérer les coupons pour le produit spécifique ET les coupons globaux
+            query = query.Where(x => x.ProductName == request.ProductName || x.IsGlobal);
+        }
+        else
+        {
+            // Récupérer uniquement les coupons pour le produit spécifique
+            query = query.Where(x => x.ProductName == request.ProductName);
+        }
+
+        var coupons = await query
+            .OrderBy(x => x.Type)  // Percentage (0) d'abord, puis FixedAmount (1)
+            .ThenByDescending(x => x.Amount)  // Plus grandes réductions d'abord dans chaque type
+            .ToListAsync();
+
+        logger.LogInformation("Found {Count} discounts for {ProductName}", coupons.Count, request.ProductName);
+
+        var response = new GetDiscountsResponse();
+        response.Coupons.AddRange(coupons.Select(c => c.Adapt<CouponModel>()));
+
+        return response;
     }
 }

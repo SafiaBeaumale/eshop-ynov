@@ -18,8 +18,8 @@
     </ItemGroup>
 
     <ItemGroup>
-      <Folder Include="Features\Orders\Queries\GetOrdersByCustomer\" />
-      <Folder Include="Features\Orders\Queries\GetOrdersByName\" />
+      <Folder Include="Features\Orders\Queries\GetOrdersByCustomerId\" />
+      <Folder Include="Features\Orders\Queries\GetOrdersById\" />
       <Folder Include="Features\Orders\Queries\GetOrders\" />
     </ItemGroup>
 

@@ -1,4 +1,5 @@
 using Basket.API.Data.Repositories;
+using Basket.API.Services;
 using BuildingBlocks.Behaviors;
 using BuildingBlocks.Messaging.MassTransit;
 using BuildingBlocks.Middlewares;
@@ -13,6 +14,18 @@ var builder = WebApplication.CreateBuilder(args);
 var configuration = builder.Configuration;
 
 // Add services to the container.
+
+// CORS for frontend
+builder.Services.AddCors(options =>
+{
+    options.AddDefaultPolicy(policy =>
+    {
+        policy.AllowAnyOrigin()
+              .AllowAnyHeader()
+              .AllowAnyMethod();
+    });
+});
+
 builder.Services.AddMediatR(config =>
 {
     config.RegisterServicesFromAssembly(typeof(Program).Assembly);
@@ -41,19 +54,21 @@ builder.Services.AddStackExchangeRedisCache(options =>
 
 builder.Services.AddGrpcClient<DiscountProtoService.DiscountProtoServiceClient>(options =>
 {
-    options.Address = new Uri(configuration.GetValue<string>("GrpcSettings:DiscountUrl") ?? string.Empty);   
+    options.Address = new Uri(configuration.GetValue<string>("GrpcSettings:DiscountUrl") ?? string.Empty);
 }).ConfigurePrimaryHttpMessageHandler (() =>
 {
     var handler = new HttpClientHandler();
-    
+
     if (builder.Environment.IsDevelopment())
     {
-        handler.ServerCertificateCustomValidationCallback = 
+        handler.ServerCertificateCustomValidationCallback =
             HttpClientHandler.DangerousAcceptAnyServerCertificateValidator;
     }
     return handler;
 });
 
+// Service de calcul des reductions
+builder.Services.AddScoped<IDiscountCalculatorService, DiscountCalculatorService>();
 builder.Services.AddMessageBroker(configuration);
 
 builder.Services.AddControllers();
@@ -74,6 +89,8 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
+
+app.UseCors();
 
 app.UseAuthorization();
 
