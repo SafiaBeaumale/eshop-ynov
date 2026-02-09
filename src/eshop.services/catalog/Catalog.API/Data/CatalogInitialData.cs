@@ -40,7 +40,8 @@ public class CatalogInitialData : IInitialData
                     Description = "This phone is the company's biggest change to its flagship smartphone in years. It includes a borderless.",
                     ImageFile = "product-1.png",
                     Price = 950.00M,
-                    Categories = ["Smart Phone"]
+                    Categories = ["Smart Phone"],
+                    Stock = 100
                 },
                 new Product()
                 {
@@ -49,7 +50,8 @@ public class CatalogInitialData : IInitialData
                     Description = "This phone is the company's biggest change to its flagship smartphone in years. It includes a borderless.",
                     ImageFile = "product-2.png",
                     Price = 840.00M,
-                    Categories = ["Smart Phone"]
+                    Categories = ["Smart Phone"],
+                    Stock = 100
                 },
                 new Product()
                 {
@@ -58,7 +60,8 @@ public class CatalogInitialData : IInitialData
                     Description = "This phone is the company's biggest change to its flagship smartphone in years. It includes a borderless.",
                     ImageFile = "product-3.png",
                     Price = 650.00M,
-                    Categories = ["White Appliances"]
+                    Categories = ["White Appliances"],
+                    Stock = 100
                 },
                 new Product()
                 {
@@ -67,7 +70,8 @@ public class CatalogInitialData : IInitialData
                     Description = "This phone is the company's biggest change to its flagship smartphone in years. It includes a borderless.",
                     ImageFile = "product-4.png",
                     Price = 470.00M,
-                    Categories = ["White Appliances"]
+                    Categories = ["White Appliances"],
+                    Stock = 100
                 },
                 new Product()
                 {
@@ -76,7 +80,8 @@ public class CatalogInitialData : IInitialData
                     Description = "This phone is the company's biggest change to its flagship smartphone in years. It includes a borderless.",
                     ImageFile = "product-5.png",
                     Price = 380.00M,
-                    Categories = ["Smart Phone"]
+                    Categories = ["Smart Phone"],
+                    Stock = 100
                 },
                 new Product()
                 {
@@ -85,7 +90,8 @@ public class CatalogInitialData : IInitialData
                     Description = "This phone is the company's biggest change to its flagship smartphone in years. It includes a borderless.",
                     ImageFile = "product-6.png",
                     Price = 240.00M,
-                    Categories = ["Home Kitchen"]
+                    Categories = ["Home Kitchen"],
+                    Stock = 100
                 },
                 new Product()
                 {
@@ -94,7 +100,8 @@ public class CatalogInitialData : IInitialData
                     Description = "This phone is the company's biggest change to its flagship smartphone in years. It includes a borderless.",
                     ImageFile = "product-6.png",
                     Price = 240.00M,
-                    Categories = ["Camera"]
+                    Categories = ["Camera"],
+                    Stock = 100
                 }
     };
 }

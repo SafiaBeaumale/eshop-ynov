@@ -1,7 +1,6 @@
-﻿using BuildingBlocks.CQRS;
+using BuildingBlocks.CQRS;
 using Catalog.API.Exceptions;
 using Catalog.API.Models;
-using Mapster;
 using Marten;
 
 namespace Catalog.API.Features.Products.Commands.UpdateProduct;
@@ -23,15 +22,20 @@ public class UpdateProductCommandHandler(IDocumentSession documentSession): ICom
         UpdateProductCommand request,
         CancellationToken cancellationToken)
     {
-        var product = request.Adapt<Product>();
-
         var existingProduct = await documentSession.LoadAsync<Product>(
-            product.Id, cancellationToken);
-        
-        if (existingProduct is null)
-            throw new ProductNotFoundException(product.Id);
+            request.Id, cancellationToken);
 
-        documentSession.Update(product);
+        if (existingProduct is null)
+            throw new ProductNotFoundException(request.Id);
+
+        existingProduct.Name = request.Name;
+        existingProduct.Description = request.Description;
+        existingProduct.Price = request.Price;
+        existingProduct.ImageFile = request.ImageFile;
+        existingProduct.Categories = request.Categories;
+        // Stock is not updated here; use DecrementStock or a dedicated endpoint for stock changes.
+
+        documentSession.Update(existingProduct);
 
         await documentSession.SaveChangesAsync(cancellationToken);
 
