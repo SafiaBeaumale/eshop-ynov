@@ -148,6 +148,20 @@ services:
       - MessageBroker__Password=${RABBITMQ_PASSWORD}
       - FeatureManagement__OrderFulfilment=false
 
+  ### Service Notification ###
+
+  notification.api:
+    env_file:
+      - .env
+    ports:
+      - "6066:${NOTIFICATION_API_PORT}" #http
+    environment:
+      - ASPNETCORE_HTTP_PORTS=${NOTIFICATION_API_PORT}
+      - MessageBroker__Host=amqp://ecommerce-rabbitmq-server:5672
+      - MessageBroker__UserName=${RABBITMQ_USER}
+      - MessageBroker__Password=${RABBITMQ_PASSWORD}
+      - Resend__ApiKey=${RESEND_API_KEY}
+
   ### API Gateway ###
 
   yarpapigateway:
