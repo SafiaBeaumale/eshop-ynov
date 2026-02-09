@@ -21,4 +21,15 @@ public record BasketCheckoutEvent : IntegrationEvent
     public string Expiration { get; set; } = null!;
     public string Cvv { get; set; } = null!;
     public int PaymentMethod { get; set; } = 0;
+
+    // Basket Items
+    public List<BasketCheckoutItem> Items { get; set; } = [];
+}
+
+public record BasketCheckoutItem
+{
+    public Guid ProductId { get; set; }
+    public string ProductName { get; set; } = null!;
+    public int Quantity { get; set; }
+    public decimal Price { get; set; }
 }

@@ -12,6 +12,8 @@ public class ShoppingCartItem
     public string ProductName {get;set;} = string.Empty;
     
     public decimal Price {get;set;}
-    
+
     public Guid ProductId {get;set;}
+
+    public string ImageFile { get; set; } = string.Empty;
 }

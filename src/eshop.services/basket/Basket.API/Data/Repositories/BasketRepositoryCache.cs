@@ -79,16 +79,6 @@ public class BasketRepositoryCache(IBasketRepository repository, IDistributedCac
     }
 
     /// <inheritdoc />
-    public async Task<ShoppingCart> ValidateBasketAsync(string userName,
-        CancellationToken cancellationToken = default)
-    {
-        var cacheKey = GenerateKey(userName);
-        var validatedBasket = await repository.ValidateBasketAsync(userName, cancellationToken);
-        await cache.RemoveAsync(cacheKey, cancellationToken);
-        return validatedBasket;
-    }
-
-    /// <inheritdoc />
     public async Task<ShoppingCart> AddItemAsync(string userName, ShoppingCartItem item,
         CancellationToken cancellationToken = default)
     {

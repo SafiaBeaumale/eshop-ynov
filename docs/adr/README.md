@@ -35,6 +35,7 @@ Un ADR est un document court qui capture une decision architecturale importante 
 
 ### Communication Inter-Services
 
+- **ADR-003** : RabbitMQ choisi au lieu de Kafka pour la messagerie asynchrone (simplicite, adequation au volume)
 - **ADR-008** : gRPC (HTTP/2 + Protobuf) choisi au lieu de REST pour la communication Basket → Discount (performance, contrat fort)
 
 ### Choix Techniques

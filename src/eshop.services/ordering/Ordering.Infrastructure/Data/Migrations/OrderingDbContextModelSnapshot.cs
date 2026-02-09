@@ -18,7 +18,7 @@ namespace Ordering.Infrastructure.Data.Migrations
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasAnnotation("ProductVersion", "9.0.7")
+                .HasAnnotation("ProductVersion", "9.0.10")
                 .HasAnnotation("Relational:MaxIdentifierLength", 128);
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
@@ -82,6 +82,7 @@ namespace Ordering.Infrastructure.Data.Migrations
                         .HasDefaultValue("Draft");
 
                     b.Property<decimal>("TotalPrice")
+                        .HasPrecision(18, 2)
                         .HasColumnType("decimal(18,2)");
 
                     b.Property<DateTime?>("UpdatedAt")
@@ -232,14 +233,17 @@ namespace Ordering.Infrastructure.Data.Migrations
                     b.Property<Guid>("OrderId")
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<Guid?>("OrderId1")
-                        .HasColumnType("uniqueidentifier");
-
                     b.Property<decimal>("Price")
+                        .HasPrecision(18, 2)
                         .HasColumnType("decimal(18,2)");
 
                     b.Property<Guid>("ProductId")
                         .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("ProductName")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("nvarchar(200)");
 
                     b.Property<int>("Quantity")
                         .HasColumnType("int");
@@ -254,8 +258,6 @@ namespace Ordering.Infrastructure.Data.Migrations
                     b.HasKey("Id");
 
                     b.HasIndex("OrderId");
-
-                    b.HasIndex("OrderId1");
 
                     b.HasIndex("ProductId");
 
@@ -280,6 +282,7 @@ namespace Ordering.Infrastructure.Data.Migrations
                         .HasColumnType("nvarchar(100)");
 
                     b.Property<decimal>("Price")
+                        .HasPrecision(18, 2)
                         .HasColumnType("decimal(18,2)");
 
                     b.Property<DateTime?>("UpdatedAt")
@@ -309,14 +312,10 @@ namespace Ordering.Infrastructure.Data.Migrations
             modelBuilder.Entity("Ordering.Domain.Models.OrderItem", b =>
                 {
                     b.HasOne("Ordering.Domain.Models.Order", null)
-                        .WithMany()
+                        .WithMany("OrderItems")
                         .HasForeignKey("OrderId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
-
-                    b.HasOne("Ordering.Domain.Models.Order", null)
-                        .WithMany("OrderItems")
-                        .HasForeignKey("OrderId1");
 
                     b.HasOne("Ordering.Domain.Models.Product", null)
                         .WithMany()
