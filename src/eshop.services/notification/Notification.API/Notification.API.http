@@ -1,0 +1,12 @@
+@baseUrl = http://localhost:5066
+
+### Send email
+POST {{baseUrl}}/api/notifications/email
+Content-Type: application/json
+
+{
+  "to": "test@example.com",
+  "subject": "Test email",
+  "html": "<strong>Hello from Notification API</strong>",
+  "text": "Hello from Notification API"
+}

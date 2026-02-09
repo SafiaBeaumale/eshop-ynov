@@ -21,7 +21,7 @@
     container_name: catalog_api
     build:
       context: .
-      dockerfile: eShop.Services/Catalog/Catalog.API/Dockerfile
+      dockerfile: eshop.services/catalog/Catalog.API/Dockerfile
     networks:
       - catalog_network
     depends_on:
@@ -39,7 +39,7 @@
     restart: always
     build:
       context: .
-      dockerfile: eShop.Services/Discount/Discount.Grpc/Dockerfile
+      dockerfile: eshop.services/discount/Discount.Grpc/Dockerfile
     networks:
       - discount_network
       - basket_network
@@ -73,7 +73,7 @@
     container_name: basket_api
     build:
       context: .
-      dockerfile: eShop.Services/Basket/Basket.API/Dockerfile
+      dockerfile: eshop.services/basket/Basket.API/Dockerfile
     networks:
       - basket_network
       - messageBroker_network
@@ -109,7 +109,7 @@
     container_name: ordering_api
     build:
       context: .
-      dockerfile: eShop.Services/Ordering/Ordering.API/Dockerfile
+      dockerfile: eshop.services/ordering/Ordering.API/Dockerfile
     networks:
       - ordering_network
       - messageBroker_network
@@ -118,6 +118,23 @@
         condition: service_started
         required: true
         restart: true
+      messageBroker:
+        condition: service_healthy
+        required: true
+        restart: true
+
+  ### Service Notification ###
+
+  notification.api:
+    image: notification.api
+    container_name: notification_api
+    build:
+      context: .
+      dockerfile: eshop.services/notification/Notification.API/Dockerfile
+    networks:
+      - notification_network
+      - messageBroker_network
+    depends_on:
       messageBroker:
         condition: service_healthy
         required: true
@@ -136,6 +153,7 @@
       - basket_network
       - catalog_network
       - discount_network
+      - notification_network
     depends_on:
       ordering.api:
         condition: service_started
@@ -150,6 +168,10 @@
         required: true
         restart: true
       discount.api:
+        condition: service_started
+        required: true
+        restart: true
+      notification.api:
         condition: service_started
         required: true
         restart: true
@@ -181,5 +203,6 @@ networks:
     name: ordering_network
   messageBroker_network:
     name: messageBroker_network 
+  notification_network:
+    name: notification_network
       
-
