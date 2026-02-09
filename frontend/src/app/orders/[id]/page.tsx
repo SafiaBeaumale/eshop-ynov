@@ -218,40 +218,45 @@ export default function OrderDetailPage() {
             >
               <Card>
                 <CardContent className="pt-6">
-                  <div className="flex items-center justify-between">
+                  <div className="flex items-start">
                     {statusSteps.map((step, index) => {
                       const isCompleted = index <= currentStatusIndex;
                       const isCurrent = index === currentStatusIndex;
+                      const config = statusConfig[step.status as OrderStatus];
+                      const Icon = config.icon;
 
                       return (
                         <div
                           key={step.status}
-                          className="flex flex-col items-center flex-1"
+                          className="relative flex flex-col items-center flex-1"
                         >
-                          <div className="flex items-center w-full">
+                          {/* Ligne (sauf dernière étape) */}
+                          {index < statusSteps.length - 1 && (
                             <div
-                              className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-medium transition-all ${
-                                isCompleted
-                                  ? "bg-primary text-primary-foreground"
-                                  : "bg-muted text-muted-foreground"
-                              } ${isCurrent ? "ring-4 ring-primary/30" : ""}`}
-                            >
-                              {isCompleted ? (
-                                <CheckCircle className="h-4 w-4" />
-                              ) : (
-                                index + 1
-                              )}
-                            </div>
-                            {index < statusSteps.length - 1 && (
-                              <div
-                                className={`flex-1 h-1 mx-2 ${
-                                  index < currentStatusIndex
-                                    ? "bg-primary"
-                                    : "bg-muted"
-                                }`}
-                              />
+                              className={`absolute top-4 left-1/2 w-full h-1 ${
+                                index < currentStatusIndex
+                                  ? "bg-primary"
+                                  : "bg-muted"
+                              }`}
+                            />
+                          )}
+
+                          {/* Bulle */}
+                          <div
+                            className={`relative z-10 w-8 h-8 rounded-full flex items-center justify-center transition-all ${
+                              isCompleted
+                                ? "bg-primary text-primary-foreground"
+                                : "bg-muted text-muted-foreground"
+                            } ${isCurrent ? "ring-4 ring-primary/30" : ""}`}
+                          >
+                            {isCompleted ? (
+                              <Icon className="h-4 w-4" />
+                            ) : (
+                              index + 1
                             )}
                           </div>
+
+                          {/* Label */}
                           <span
                             className={`mt-2 text-xs text-center ${
                               isCompleted
@@ -259,7 +264,7 @@ export default function OrderDetailPage() {
                                 : "text-muted-foreground"
                             }`}
                           >
-                            {step.label}
+                            {config.label}
                           </span>
                         </div>
                       );

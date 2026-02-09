@@ -86,10 +86,21 @@ export interface OrdersResponse {
   totalCount: number;
 }
 
+// Discount types (Discount API)
+export interface Discount {
+  id: number;
+  productName: string;
+  description: string;
+  amount: number;
+  type: number; // 0 = percentage, 1 = fixed amount
+  isGlobal: boolean;
+}
+
 // Checkout DTO
 export interface CheckoutDto {
   userName: string;
   customerId: string;
+  totalPrice: number;
   firstName: string;
   lastName: string;
   emailAddress: string;

@@ -40,10 +40,12 @@
     build:
       context: .
       dockerfile: eShop.Services/Discount/Discount.Grpc/Dockerfile
+    volumes:
+      - discount_data:/data
     networks:
       - discount_network
       - basket_network
-  
+
   discount.api:
     image: discount.api
     container_name: discount_api
@@ -51,6 +53,8 @@
     build:
       context: .
       dockerfile: eshop.services/discount/Discount.API/Dockerfile
+    volumes:
+      - discount_data:/data
     networks:
       - discount_network
 
@@ -160,6 +164,8 @@ volumes:
     name: catalog_data
   basket_data:
     name: basket_data
+  discount_data:
+    name: discount_data
   ordering_data:
     name: ordering_data
   redis_data:

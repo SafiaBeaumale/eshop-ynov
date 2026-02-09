@@ -13,8 +13,8 @@ import {
 } from "@/components/ui/select";
 import { Separator } from "@/components/ui/separator";
 import { useCart } from "@/context/cart-context";
-import { basketApi } from "@/lib/api";
-import type { CheckoutDto } from "@/types";
+import { basketApi, discountApi } from "@/lib/api";
+import type { CheckoutDto, Discount } from "@/types";
 import { motion } from "framer-motion";
 import {
   Check,
@@ -22,12 +22,12 @@ import {
   CreditCard,
   Lock,
   ShoppingBag,
+  Tag,
   Truck,
 } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { toast } from "sonner";
 
 const steps = [
@@ -37,7 +37,6 @@ const steps = [
 ];
 
 export default function CheckoutPage() {
-  const router = useRouter();
   const { cart, cartTotal, userName, clearCart } = useCart();
   const [currentStep, setCurrentStep] = useState(1);
   const [isProcessing, setIsProcessing] = useState(false);
@@ -57,6 +56,12 @@ export default function CheckoutPage() {
     cvv: "",
   });
 
+  const [globalDiscounts, setGlobalDiscounts] = useState<Discount[]>([]);
+
+  useEffect(() => {
+    discountApi.getGlobalDiscounts().then(setGlobalDiscounts);
+  }, []);
+
   const formatPrice = (price: number) => {
     return new Intl.NumberFormat("fr-FR", {
       style: "currency",
@@ -64,8 +69,16 @@ export default function CheckoutPage() {
     }).format(price);
   };
 
-  const shippingCost = cartTotal >= 50 ? 0 : 4.99;
-  const finalTotal = cartTotal + shippingCost;
+  const discountSaving = (price: number, d: Discount) =>
+    d.type === 0 ? price * (d.amount / 100) : d.amount;
+
+  const globalDiscountSavings = globalDiscounts.reduce(
+    (total, d) => total + discountSaving(cartTotal, d),
+    0,
+  );
+  const subtotalAfterDiscounts = Math.max(0, cartTotal - globalDiscountSavings);
+  const shippingCost = subtotalAfterDiscounts >= 50 ? 0 : 4.99;
+  const finalTotal = subtotalAfterDiscounts + shippingCost;
 
   const handleInputChange = (field: string, value: string) => {
     setFormData((prev) => ({ ...prev, [field]: value }));
@@ -89,6 +102,7 @@ export default function CheckoutPage() {
     const checkoutDto: CheckoutDto = {
       userName: userName,
       customerId: crypto.randomUUID(),
+      totalPrice: finalTotal,
       firstName: formData.firstName,
       lastName: formData.lastName,
       emailAddress: formData.email,
@@ -195,9 +209,10 @@ export default function CheckoutPage() {
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           {/* Form Section */}
-          <div className="lg:col-span-2">
-            {/* Step 1: Shipping */}
-            {currentStep === 1 && (
+
+          {/* Step 1: Shipping */}
+          {currentStep === 1 && (
+            <div className="lg:col-span-3 pb-6">
               <motion.div
                 initial={{ opacity: 0, x: -20 }}
                 animate={{ opacity: 1, x: 0 }}
@@ -336,10 +351,12 @@ export default function CheckoutPage() {
                   </CardContent>
                 </Card>
               </motion.div>
-            )}
+            </div>
+          )}
 
-            {/* Step 2: Payment */}
-            {currentStep === 2 && (
+          {/* Step 2: Payment */}
+          {currentStep === 2 && (
+            <div className="lg:col-span-3 pb-6">
               <motion.div
                 initial={{ opacity: 0, x: 20 }}
                 animate={{ opacity: 1, x: 0 }}
@@ -435,10 +452,12 @@ export default function CheckoutPage() {
                   </CardContent>
                 </Card>
               </motion.div>
-            )}
+            </div>
+          )}
 
-            {/* Step 3: Confirmation */}
-            {currentStep === 3 && (
+          {/* Step 3: Confirmation */}
+          {currentStep === 3 && (
+            <div className="lg:col-span-3">
               <motion.div
                 initial={{ opacity: 0, scale: 0.95 }}
                 animate={{ opacity: 1, scale: 1 }}
@@ -473,89 +492,116 @@ export default function CheckoutPage() {
                   </Link>
                 </div>
               </motion.div>
-            )}
-          </div>
-
-          {/* Order Summary */}
-          {currentStep !== 3 && (
-            <div className="lg:col-span-1">
-              <motion.div
-                initial={{ opacity: 0, x: 20 }}
-                animate={{ opacity: 1, x: 0 }}
-                transition={{ delay: 0.2 }}
-              >
-                <Card className="sticky top-24">
-                  <CardHeader>
-                    <h2 className="text-lg font-semibold">
-                      Récapitulatif de commande
-                    </h2>
-                  </CardHeader>
-                  <CardContent className="space-y-4">
-                    {/* Items */}
-                    <div className="space-y-3 max-h-60 overflow-y-auto">
-                      {cart?.items?.map((item) => (
-                        <div
-                          key={item.productId}
-                          className="flex gap-3 items-center"
-                        >
-                          <div className="relative h-12 w-12 rounded-lg overflow-hidden bg-muted">
-                            <Image
-                              src="https://images.unsplash.com/photo-1695048133142-1a20484d2569?w=100&q=80"
-                              alt={item.productName}
-                              fill
-                              className="object-cover"
-                            />
-                          </div>
-                          <div className="flex-1 min-w-0">
-                            <p className="text-sm font-medium truncate">
-                              {item.productName}
-                            </p>
-                            <p className="text-xs text-muted-foreground">
-                              Qté: {item.quantity}
-                            </p>
-                          </div>
-                          <span className="text-sm font-medium">
-                            {formatPrice(item.price * item.quantity)}
-                          </span>
-                        </div>
-                      ))}
-                    </div>
-
-                    <Separator />
-
-                    <div className="space-y-2">
-                      <div className="flex justify-between text-sm">
-                        <span className="text-muted-foreground">
-                          Sous-total
-                        </span>
-                        <span>{formatPrice(cartTotal)}</span>
-                      </div>
-                      <div className="flex justify-between text-sm">
-                        <span className="text-muted-foreground">Livraison</span>
-                        <span>
-                          {shippingCost === 0 ? (
-                            <span className="text-green-600">Gratuite</span>
-                          ) : (
-                            formatPrice(shippingCost)
-                          )}
-                        </span>
-                      </div>
-                    </div>
-
-                    <Separator />
-
-                    <div className="flex justify-between font-bold text-lg">
-                      <span>Total</span>
-                      <span className="text-primary">
-                        {formatPrice(finalTotal)}
-                      </span>
-                    </div>
-                  </CardContent>
-                </Card>
-              </motion.div>
             </div>
           )}
         </div>
+
+        {/* Order Summary */}
+        {currentStep !== 3 && (
+          <div className="lg:col-span-1">
+            <motion.div
+              initial={{ opacity: 0, x: 20 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ delay: 0.2 }}
+            >
+              <Card className="sticky top-24">
+                <CardHeader>
+                  <h2 className="text-lg font-semibold">
+                    Récapitulatif de commande
+                  </h2>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  {/* Items */}
+                  <div className="space-y-3 max-h-60 overflow-y-auto">
+                    {cart?.items?.map((item) => (
+                      <div
+                        key={item.productId}
+                        className="flex gap-3 items-center"
+                      >
+                        <div className="relative h-12 w-12 rounded-lg overflow-hidden bg-muted">
+                          <Image
+                            src="https://images.unsplash.com/photo-1695048133142-1a20484d2569?w=100&q=80"
+                            alt={item.productName}
+                            fill
+                            className="object-cover"
+                          />
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <p className="text-sm font-medium truncate">
+                            {item.productName}
+                          </p>
+                          <p className="text-xs text-muted-foreground">
+                            Qté: {item.quantity}
+                          </p>
+                        </div>
+                        <span className="text-sm font-medium">
+                          {formatPrice(item.price * item.quantity)}
+                        </span>
+                      </div>
+                    ))}
+                  </div>
+
+                  <Separator />
+
+                  <div className="space-y-2">
+                    <div className="flex justify-between text-sm">
+                      <span className="text-muted-foreground">Sous-total</span>
+                      <span>{formatPrice(cartTotal)}</span>
+                    </div>
+                    {globalDiscounts.length > 0 &&
+                      globalDiscountSavings > 0 && (
+                        <>
+                          <span className="text-xs font-medium text-muted-foreground">
+                            Réductions panier
+                          </span>
+                          {globalDiscounts.map((discount) => (
+                            <div
+                              key={discount.id}
+                              className="flex justify-between text-sm text-green-600"
+                            >
+                              <span className="flex items-center gap-1">
+                                <Tag className="h-3 w-3" />
+                                {discount.description} (
+                                {discount.type === 0
+                                  ? `-${discount.amount}%`
+                                  : `-${discount.amount}€`}
+                                )
+                              </span>
+                              <span>
+                                -
+                                {formatPrice(
+                                  discountSaving(cartTotal, discount),
+                                )}
+                              </span>
+                            </div>
+                          ))}
+                        </>
+                      )}
+                    <div className="flex justify-between text-sm">
+                      <span className="text-muted-foreground">Livraison</span>
+                      <span>
+                        {shippingCost === 0 ? (
+                          <span className="text-green-600">Gratuite</span>
+                        ) : (
+                          formatPrice(shippingCost)
+                        )}
+                      </span>
+                    </div>
+                  </div>
+
+                  <Separator />
+
+                  <div className="flex justify-between font-bold text-lg">
+                    <span>Total</span>
+                    <span className="text-primary">
+                      {formatPrice(finalTotal)}
+                    </span>
+                  </div>
+                </CardContent>
+              </Card>
+            </motion.div>
+          </div>
+        )}
       </div>
     </div>
   );

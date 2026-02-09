@@ -11,6 +11,8 @@ import { Separator } from "@/components/ui/separator";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useCart } from "@/context/cart-context";
 import { AnimatePresence, motion } from "framer-motion";
+import { discountApi } from "@/lib/api";
+import type { Discount } from "@/types";
 import {
   ArrowRight,
   Minus,
@@ -18,11 +20,13 @@ import {
   Shield,
   ShoppingBag,
   ShoppingCart,
+  Tag,
   Trash2,
   Truck,
 } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
+import { useEffect, useState } from "react";
 
 export default function CartPage() {
   const {
@@ -35,6 +39,34 @@ export default function CartPage() {
     cartItemCount,
   } = useCart();
 
+  const [globalDiscounts, setGlobalDiscounts] = useState<Discount[]>([]);
+  const [productDiscounts, setProductDiscounts] = useState<
+    Record<string, Discount[]>
+  >({});
+
+  useEffect(() => {
+    discountApi.getGlobalDiscounts().then(setGlobalDiscounts);
+  }, []);
+
+  useEffect(() => {
+    if (!cart?.items) return;
+    const fetchProductDiscounts = async () => {
+      const results: Record<string, Discount[]> = {};
+      await Promise.all(
+        cart.items.map(async (item) => {
+          const discounts = await discountApi.getProductDiscounts(
+            item.productName,
+          );
+          if (discounts.length > 0) {
+            results[item.productId] = discounts;
+          }
+        }),
+      );
+      setProductDiscounts(results);
+    };
+    fetchProductDiscounts();
+  }, [cart?.items]);
+
   const formatPrice = (price: number) => {
     return new Intl.NumberFormat("fr-FR", {
       style: "currency",
@@ -42,8 +74,59 @@ export default function CartPage() {
     }).format(price);
   };
 
-  const shippingCost = cartTotal >= 50 ? 0 : 4.99;
-  const finalTotal = cartTotal + shippingCost;
+  // Helper: calculate the saving amount of a single discount on a price
+  const discountSaving = (price: number, d: Discount) =>
+    d.type === 0 ? price * (d.amount / 100) : d.amount;
+
+  // Helper: apply a list of discounts to a price
+  const applyDiscounts = (price: number, discounts: Discount[]) => {
+    let result = price;
+    for (const d of discounts) {
+      result -= discountSaving(price, d);
+    }
+    return Math.max(0, result);
+  };
+
+  // Product-level discount savings (per item)
+  const productDiscountSavings =
+    cart?.items?.reduce((total, item) => {
+      const discounts = productDiscounts[item.productId];
+      if (!discounts) return total;
+      return (
+        total +
+        (item.price - applyDiscounts(item.price, discounts)) * item.quantity
+      );
+    }, 0) ?? 0;
+
+  // Build product discount lines grouped by product for the recap
+  const productDiscountGroups =
+    cart?.items
+      ?.filter((item) => productDiscounts[item.productId]?.length > 0)
+      .map((item) => ({
+        productName: item.productName,
+        productId: item.productId,
+        lines: productDiscounts[item.productId].map((d) => ({
+          id: `${item.productId}-${d.id}`,
+          description: d.description,
+          type: d.type,
+          amount: d.amount,
+          saving: discountSaving(item.price, d) * item.quantity,
+        })),
+      })) ?? [];
+
+  // Global discounts apply on subtotal AFTER product discounts
+  const subtotalAfterProducts = cartTotal - productDiscountSavings;
+  const globalDiscountSavings = globalDiscounts.reduce(
+    (total, d) => total + discountSaving(subtotalAfterProducts, d),
+    0,
+  );
+  const subtotalAfterDiscounts = Math.max(
+    0,
+    subtotalAfterProducts - globalDiscountSavings,
+  );
+
+  const shippingCost = subtotalAfterDiscounts >= 50 ? 0 : 4.99;
+  const finalTotal = subtotalAfterDiscounts + shippingCost;
 
   if (isLoading) {
     return (
@@ -163,9 +246,35 @@ export default function CartPage() {
                               Couleur: {item.color}
                             </p>
                           )}
-                          <p className="font-bold text-primary mt-2">
-                            {formatPrice(item.price)}
-                          </p>
+                          <div className="flex items-center gap-2 mt-2">
+                            <p className="font-bold text-primary">
+                              {productDiscounts[item.productId]
+                                ? formatPrice(
+                                    applyDiscounts(
+                                      item.price,
+                                      productDiscounts[item.productId],
+                                    ),
+                                  )
+                                : formatPrice(item.price)}
+                            </p>
+                            {productDiscounts[item.productId] && (
+                              <>
+                                <span className="text-sm text-muted-foreground line-through">
+                                  {formatPrice(item.price)}
+                                </span>
+                                {productDiscounts[item.productId].map((d) => (
+                                  <span
+                                    key={d.id}
+                                    className="text-xs text-green-600 font-medium"
+                                  >
+                                    {d.type === 0
+                                      ? `-${d.amount}%`
+                                      : `-${d.amount}€`}
+                                  </span>
+                                ))}
+                              </>
+                            )}
+                          </div>
                         </div>
 
                         {/* Quantity & Delete */}
@@ -235,6 +344,69 @@ export default function CartPage() {
                     <span className="text-muted-foreground">Sous-total</span>
                     <span>{formatPrice(cartTotal)}</span>
                   </div>
+
+                  {/* Product discounts */}
+                  {productDiscountGroups.length > 0 && (
+                    <div className="space-y-2">
+                      <span className="text-sm font-medium text-muted-foreground">
+                        Réductions produits
+                      </span>
+                      {productDiscountGroups.map((group) => (
+                        <div key={group.productId} className="space-y-1">
+                          <span className="text-xs font-medium text-muted-foreground">
+                            Reduction {group.productName}
+                          </span>
+                          {group.lines.map((line) => (
+                            <div
+                              key={line.id}
+                              className="flex justify-between text-green-600 text-sm"
+                            >
+                              <span className="flex items-center gap-1">
+                                <Tag className="h-3 w-3" />
+                                {line.description} (
+                                {line.type === 0
+                                  ? `-${line.amount}%`
+                                  : `-${line.amount}€`}
+                                )
+                              </span>
+                              <span>-{formatPrice(line.saving)}</span>
+                            </div>
+                          ))}
+                        </div>
+                      ))}
+                    </div>
+                  )}
+
+                  {/* Global / cart discounts */}
+                  {globalDiscounts.length > 0 && globalDiscountSavings > 0 && (
+                    <div className="space-y-1">
+                      <span className="text-sm font-medium text-muted-foreground">
+                        Réductions panier
+                      </span>
+                      {globalDiscounts.map((discount) => (
+                        <div
+                          key={discount.id}
+                          className="flex justify-between text-green-600 text-sm"
+                        >
+                          <span className="flex items-center gap-1">
+                            <Tag className="h-3 w-3" />
+                            {discount.description} (
+                            {discount.type === 0
+                              ? `-${discount.amount}%`
+                              : `-${discount.amount}€`}
+                            )
+                          </span>
+                          <span>
+                            -
+                            {formatPrice(
+                              discountSaving(subtotalAfterProducts, discount),
+                            )}
+                          </span>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+
                   <div className="flex justify-between">
                     <span className="text-muted-foreground">Livraison</span>
                     <span>
@@ -249,8 +421,9 @@ export default function CartPage() {
                   </div>
                   {shippingCost > 0 && (
                     <p className="text-xs text-muted-foreground">
-                      Plus que {formatPrice(50 - cartTotal)} pour la livraison
-                      gratuite !
+                      Plus que{" "}
+                      {formatPrice(50 - subtotalAfterDiscounts)} pour la
+                      livraison gratuite !
                     </p>
                   )}
                   <Separator />

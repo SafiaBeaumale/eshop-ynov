@@ -34,6 +34,7 @@ public class DiscountCalculatorService(
         try
         {
             // Recuperer tous les coupons pour ce produit (sans les globaux, ils seront appliques au total)
+            logger.LogInformation("Fetching product discounts for '{ProductName}'", item.ProductName);
             var response = await discountClient.GetDiscountsAsync(
                 new GetDiscountsRequest
                 {
@@ -42,18 +43,24 @@ public class DiscountCalculatorService(
                 },
                 cancellationToken: cancellationToken);
 
+            logger.LogInformation("GetDiscounts returned {Count} coupons for '{ProductName}'",
+                response.Coupons.Count, item.ProductName);
+
             if (response.Coupons.Count > 0)
             {
-                logger.LogInformation("Found {Count} coupons for product {ProductName}",
-                    response.Coupons.Count, item.ProductName);
-
                 // Les coupons sont deja tries par le service (pourcentages d'abord)
                 unitPrice = ApplyCoupons(unitPrice, response.Coupons);
             }
         }
-        catch (RpcException ex) when (ex.StatusCode == StatusCode.NotFound)
+        catch (RpcException ex)
         {
-            logger.LogDebug("No discount found for product {ProductName}", item.ProductName);
+            logger.LogWarning(ex, "gRPC error fetching discounts for product '{ProductName}': {Status}",
+                item.ProductName, ex.StatusCode);
+        }
+        catch (Exception ex)
+        {
+            logger.LogError(ex, "Unexpected error fetching discounts for product '{ProductName}'",
+                item.ProductName);
         }
 
         var itemTotal = Math.Max(0, unitPrice) * item.Quantity;
@@ -87,9 +94,13 @@ public class DiscountCalculatorService(
                 total = ApplyCoupons(total, globalCoupons);
             }
         }
-        catch (RpcException ex) when (ex.StatusCode == StatusCode.NotFound)
+        catch (RpcException ex)
         {
-            logger.LogDebug("No global discounts found");
+            logger.LogWarning(ex, "gRPC error fetching global discounts: {Status}", ex.StatusCode);
+        }
+        catch (Exception ex)
+        {
+            logger.LogError(ex, "Unexpected error fetching global discounts");
         }
 
         return total;

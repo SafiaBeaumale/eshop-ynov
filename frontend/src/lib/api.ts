@@ -1,5 +1,6 @@
 import type {
   CheckoutDto,
+  Discount,
   Order,
   Product,
   ShoppingCart,
@@ -11,6 +12,7 @@ const API_CONFIG = {
   catalog: process.env.NEXT_PUBLIC_CATALOG_API_URL || "http://localhost:6060",
   basket: process.env.NEXT_PUBLIC_BASKET_API_URL || "http://localhost:6061",
   ordering: process.env.NEXT_PUBLIC_ORDERING_API_URL || "http://localhost:6063",
+  discount: process.env.NEXT_PUBLIC_DISCOUNT_API_URL || "http://localhost:6065",
 };
 
 // Helper function for API calls
@@ -209,6 +211,32 @@ export const orderingApi = {
       return true;
     } catch {
       return false;
+    }
+  },
+};
+
+// ============ DISCOUNT API ============
+
+export const discountApi = {
+  // Get global discounts (apply to cart)
+  async getGlobalDiscounts(): Promise<Discount[]> {
+    try {
+      return await fetchApi<Discount[]>(
+        `${API_CONFIG.discount}/discounts/global`,
+      );
+    } catch {
+      return [];
+    }
+  },
+
+  // Get discounts for a specific product
+  async getProductDiscounts(productName: string): Promise<Discount[]> {
+    try {
+      return await fetchApi<Discount[]>(
+        `${API_CONFIG.discount}/discounts/product?productName=${encodeURIComponent(productName)}`,
+      );
+    } catch {
+      return [];
     }
   },
 };

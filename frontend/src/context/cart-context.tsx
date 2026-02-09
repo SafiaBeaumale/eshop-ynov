@@ -159,7 +159,7 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
 
   const cartItemCount =
     cart?.items?.reduce((sum, item) => sum + item.quantity, 0) || 0;
-  const cartTotal = cart?.totalAfterDiscount ?? cart?.total ?? 0;
+  const cartTotal = cart?.total ?? 0;
 
   return (
     <CartContext.Provider

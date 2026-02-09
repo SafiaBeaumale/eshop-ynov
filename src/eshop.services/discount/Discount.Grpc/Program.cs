@@ -11,7 +11,9 @@ var configuration = builder.Configuration;
 builder.Services.AddGrpc();
 builder.Services.AddGrpcReflection();
 
-builder.Services.AddDbContext<DiscountContext>(options => options.UseSqlite(configuration.GetConnectionString("DiscountConnection")));
+// Database - SQLite
+builder.Services.AddDbContext<DiscountContext>(options =>
+    options.UseSqlite(configuration.GetConnectionString("DiscountConnection")));
 
 var app = builder.Build();
 

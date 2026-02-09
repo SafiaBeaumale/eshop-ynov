@@ -1,17 +1,14 @@
 "use client";
 
 import { Button } from "@/components/ui/button";
+import { discountApi } from "@/lib/api";
+import type { Discount } from "@/types";
 import { motion } from "framer-motion";
 import { ArrowRight, Clock, Percent, Shield, Truck } from "lucide-react";
 import Link from "next/link";
+import { useEffect, useState } from "react";
 
-const promos = [
-  {
-    icon: Percent,
-    title: "Offres exclusives",
-    description: "Jusqu'à -30% sur une sélection de produits",
-    color: "from-rose-500 to-pink-600",
-  },
+const staticFeatures = [
   {
     icon: Truck,
     title: "Livraison gratuite",
@@ -33,12 +30,31 @@ const promos = [
 ];
 
 export function PromoSection() {
+  const [globalDiscounts, setGlobalDiscounts] = useState<Discount[]>([]);
+
+  useEffect(() => {
+    discountApi.getGlobalDiscounts().then(setGlobalDiscounts);
+  }, []);
+
+  const promoItems = [
+    ...globalDiscounts.map((d) => ({
+      icon: Percent,
+      title: d.description,
+      description:
+        d.type === 0
+          ? `${d.amount}% de réduction sur votre panier`
+          : `${d.amount}€ de réduction sur votre panier`,
+      color: "from-rose-500 to-pink-600",
+    })),
+    ...staticFeatures,
+  ];
+
   return (
     <section className="py-16 md:py-24">
       <div className="container mx-auto px-4">
         {/* Features grid */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-16">
-          {promos.map((promo, index) => (
+          {promoItems.map((promo, index) => (
             <motion.div
               key={promo.title}
               initial={{ opacity: 0, y: 20 }}
@@ -105,14 +121,19 @@ export function PromoSection() {
                 viewport={{ once: true }}
                 className="inline-block bg-white/20 backdrop-blur-sm px-4 py-1 rounded-full text-sm font-medium mb-4"
               >
-                Offre limitée
+                {globalDiscounts.length > 0
+                  ? `${globalDiscounts.length} offre${globalDiscounts.length > 1 ? "s" : ""} en cours`
+                  : "Découvrez nos produits"}
               </motion.span>
               <h2 className="text-3xl md:text-4xl font-bold mb-3">
-                Soldes d&apos;hiver
+                {globalDiscounts.length > 0
+                  ? "Promotions en cours"
+                  : "Notre sélection"}
               </h2>
               <p className="text-white/80 text-lg max-w-md">
-                Profitez de réductions exceptionnelles sur toute notre gamme de
-                produits tech. Ne manquez pas cette opportunité !
+                {globalDiscounts.length > 0
+                  ? "Profitez de nos réductions en cours sur toute notre gamme de produits !"
+                  : "Découvrez notre gamme de produits tech de qualité."}
               </p>
             </div>
             <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
@@ -122,7 +143,7 @@ export function PromoSection() {
                   variant="secondary"
                   className="gap-2 text-base font-semibold"
                 >
-                  Voir les offres
+                  Voir les produits
                   <ArrowRight className="h-5 w-5" />
                 </Button>
               </Link>

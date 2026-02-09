@@ -4,11 +4,13 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { useCart } from "@/context/cart-context";
-import type { Product } from "@/types";
+import { discountApi } from "@/lib/api";
+import type { Discount, Product } from "@/types";
 import { motion } from "framer-motion";
 import { Eye, ShoppingCart } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
+import { useEffect, useState } from "react";
 
 interface ProductCardProps {
   product: Product;
@@ -27,6 +29,23 @@ const isValidUrl = (str: string): boolean => {
 
 export function ProductCard({ product, index = 0 }: ProductCardProps) {
   const { addToCart, isLoading } = useCart();
+  const [discounts, setDiscounts] = useState<Discount[]>([]);
+
+  useEffect(() => {
+    discountApi.getProductDiscounts(product.name).then(setDiscounts);
+  }, [product.name]);
+
+  const percentDiscounts = discounts.filter((d) => d.type === 0);
+
+  const fixedDiscounts = discounts.filter((d) => d.type === 1);
+  const totalPercentOff = percentDiscounts.reduce((s, d) => s + d.amount, 0);
+  const totalFixedOff = fixedDiscounts.reduce((s, d) => s + d.amount, 0);
+  const discountedPrice = Math.max(
+    0,
+    product.price * (1 - totalPercentOff / 100) - totalFixedOff,
+  );
+  console.log("Discounted price:", discountedPrice);
+  const hasDiscount = discounts.length > 0 && discountedPrice < product.price;
 
   // Use placeholder if imageFile is not a valid URL
   const imageUrl =
@@ -55,7 +74,7 @@ export function ProductCard({ product, index = 0 }: ProductCardProps) {
       transition={{ delay: index * 0.05, duration: 0.3 }}
     >
       <Link href={`/products/${product.id}`}>
-        <Card className="group relative overflow-hidden h-full border-0 shadow-md hover:shadow-xl transition-all duration-300">
+        <Card className="group relative overflow-hidden h-full border-0 shadow-md hover:shadow-xl transition-all duration-300 py-0">
           {/* Image Container */}
           <div className="relative aspect-square overflow-hidden bg-linear-to-br from-muted/50 to-muted">
             {/* Product Image */}
@@ -133,25 +152,40 @@ export function ProductCard({ product, index = 0 }: ProductCardProps) {
             <p className="text-sm text-muted-foreground line-clamp-2 mt-1 h-10">
               {product.description}
             </p>
-            <div className="mt-3 flex items-center justify-between">
-              <span className="text-xl font-bold text-primary">
-                {formatPrice(product.price)}
-              </span>
-              <motion.div
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-              >
-                <Button
-                  size="sm"
-                  onClick={handleAddToCart}
-                  disabled={isLoading}
-                  className="gap-1"
-                >
-                  <ShoppingCart className="h-4 w-4" />
-                  <span className="hidden sm:inline">Ajouter</span>
-                </Button>
-              </motion.div>
+            <div className="mt-3 flex items-center justify-between pb-2">
+              <div className="flex items-center gap-2">
+                <span className="text-xl font-bold text-primary">
+                  {formatPrice(discountedPrice)}
+                </span>
+                {hasDiscount && (
+                  <>
+                    <span className="text-sm text-muted-foreground line-through">
+                      {formatPrice(product.price)}
+                    </span>
+                    {discounts.map((d) => (
+                      <Badge
+                        key={d.id}
+                        variant="destructive"
+                        className="text-xs"
+                      >
+                        {d.type === 0 ? `-${d.amount}%` : `-${d.amount}€`}
+                      </Badge>
+                    ))}
+                  </>
+                )}
+              </div>
             </div>
+            <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
+              <Button
+                size="sm"
+                onClick={handleAddToCart}
+                disabled={isLoading}
+                className="gap-1"
+              >
+                <ShoppingCart className="h-4 w-4" />
+                <span className="hidden sm:inline">Ajouter</span>
+              </Button>
+            </motion.div>
           </CardContent>
         </Card>
       </Link>

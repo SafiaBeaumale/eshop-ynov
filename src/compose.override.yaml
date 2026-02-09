@@ -104,14 +104,14 @@ services:
       - "6062:${DISCOUNT_API_PORT}" #http
     environment:
       - ASPNETCORE_HTTP_PORTS=${DISCOUNT_API_PORT}
-      - ConnectionStrings__DiscountConnection=Data Source = discountDatabase
+      - ConnectionStrings__DiscountConnection=Data Source=/data/discount.db
 
   discount.api:
     ports:
       - "6065:${DISCOUNT_REST_API_PORT}" #http
     environment:
       - ASPNETCORE_HTTP_PORTS=${DISCOUNT_REST_API_PORT}
-      - ConnectionStrings__DiscountConnection=Data Source = discountApiDatabase
+      - ConnectionStrings__DiscountConnection=Data Source=/data/discount.db
 
   ### Service Ordering ###
   ordering.database:

@@ -5,13 +5,12 @@ import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useCart } from "@/context/cart-context";
-import { catalogApi } from "@/lib/api";
-import type { Product } from "@/types";
+import { catalogApi, discountApi } from "@/lib/api";
+import type { Discount, Product } from "@/types";
 import { motion } from "framer-motion";
 import {
   Check,
   ChevronLeft,
-  Heart,
   Minus,
   Plus,
   RotateCcw,
@@ -49,7 +48,7 @@ export default function ProductDetailPage() {
   const [product, setProduct] = useState<Product | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [quantity, setQuantity] = useState(1);
-  const [isWishlisted, setIsWishlisted] = useState(false);
+  const [discounts, setDiscounts] = useState<Discount[]>([]);
 
   useEffect(() => {
     async function fetchProduct() {
@@ -57,6 +56,11 @@ export default function ProductDetailPage() {
         setIsLoading(true);
         const data = await catalogApi.getProductById(productId);
         setProduct(data);
+        // Fetch discounts for this product
+        const productDiscounts = await discountApi.getProductDiscounts(
+          data.name,
+        );
+        setDiscounts(productDiscounts);
       } catch (error) {
         console.error("Error fetching product:", error);
       } finally {
@@ -180,17 +184,64 @@ export default function ProductDetailPage() {
             </h1>
 
             {/* Price */}
-            <div className="flex items-baseline gap-3 mb-6">
-              <span className="text-3xl font-bold text-primary">
-                {formatPrice(product.price)}
-              </span>
-              <span className="text-lg text-muted-foreground line-through">
-                {formatPrice(product.price * 1.2)}
-              </span>
-              <Badge variant="destructive" className="text-sm">
-                -20%
-              </Badge>
-            </div>
+            {(() => {
+              const pctOff = discounts
+                .filter((d) => d.type === 0)
+                .reduce((s, d) => s + d.amount, 0);
+              const fixedOff = discounts
+                .filter((d) => d.type === 1)
+                .reduce((s, d) => s + d.amount, 0);
+              const finalPrice = Math.max(
+                0,
+                product.price * (1 - pctOff / 100) - fixedOff,
+              );
+              const hasDiscount =
+                discounts.length > 0 && finalPrice < product.price;
+              return (
+                <>
+                  <div className="flex items-baseline gap-3 mb-6">
+                    {hasDiscount ? (
+                      <>
+                        <span className="text-3xl font-bold text-primary">
+                          {formatPrice(finalPrice)}
+                        </span>
+                        <span className="text-lg text-muted-foreground line-through">
+                          {formatPrice(product.price)}
+                        </span>
+                        {discounts.map((discount) => (
+                          <Badge
+                            key={discount.id}
+                            variant="destructive"
+                            className="text-sm"
+                          >
+                            {discount.type === 0
+                              ? `-${discount.amount}%`
+                              : `-${discount.amount}€`}
+                          </Badge>
+                        ))}
+                      </>
+                    ) : (
+                      <span className="text-3xl font-bold text-primary">
+                        {formatPrice(product.price)}
+                      </span>
+                    )}
+                  </div>
+                  {hasDiscount && (
+                    <div className="flex flex-col gap-1 mb-4">
+                      {discounts.map((discount) => (
+                        <p key={discount.id} className="text-sm text-green-600">
+                          {discount.description} (
+                          {discount.type === 0
+                            ? `-${discount.amount}%`
+                            : `-${discount.amount}€`}
+                          )
+                        </p>
+                      ))}
+                    </div>
+                  )}
+                </>
+              );
+            })()}
 
             {/* Description */}
             <p className="text-muted-foreground mb-8 leading-relaxed">

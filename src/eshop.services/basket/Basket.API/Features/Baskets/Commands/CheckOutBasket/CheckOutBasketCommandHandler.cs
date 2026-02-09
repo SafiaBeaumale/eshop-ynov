@@ -1,4 +1,5 @@
 using Basket.API.Data.Repositories;
+using Basket.API.Services;
 using BuildingBlocks.CQRS;
 using BuildingBlocks.Messaging.Events;
 using Mapster;
@@ -16,7 +17,10 @@ namespace Basket.API.Features.Baskets.Commands.CheckOutBasket;
 /// It also integrates with the messaging system via <see cref="IPublishEndpoint"/> to notify other systems
 /// about the basket checkout event.
 /// </remarks>
-public class CheckOutBasketCommandHandler(IBasketRepository repository, IPublishEndpoint publishEndpoint)
+public class CheckOutBasketCommandHandler(
+    IBasketRepository repository,
+    IPublishEndpoint publishEndpoint,
+    IDiscountCalculatorService discountCalculator)
     : ICommandHandler<CheckOutBasketCommand, CheckOutBasketCommandResult>
 {
     /// <summary>
@@ -31,8 +35,11 @@ public class CheckOutBasketCommandHandler(IBasketRepository repository, IPublish
         var basket = await repository.GetBasketByUserNameAsync(request.BasketCheckoutDto.UserName, cancellationToken)
             .ConfigureAwait(false);
 
+        // Recalculer le total avec toutes les reductions (produit + globales)
+        basket.TotalAfterDiscount = await discountCalculator.CalculateTotalAfterDiscountAsync(basket, cancellationToken);
+
         var eventMessage = request.BasketCheckoutDto.Adapt<BasketCheckoutEvent>();
-        eventMessage.TotalPrice = basket.Total;
+        eventMessage.TotalPrice = basket.TotalAfterDiscount ?? basket.Total;
         eventMessage.Items = basket.Items.Select(item => new BasketCheckoutItem
         {
             ProductId = item.ProductId,

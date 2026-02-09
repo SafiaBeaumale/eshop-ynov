@@ -58,8 +58,9 @@ public class DiscountsController(DiscountContext dbContext, ILogger<DiscountsCon
     [HttpPost]
     [ProducesResponseType(typeof(Coupon), StatusCodes.Status201Created)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
-    public async Task<ActionResult<Coupon>> CreateDiscount([FromBody] Coupon coupon)
+    public async Task<ActionResult<Coupon>> CreateDiscount([FromBody] CreateCouponRequest request)
     {
+        var coupon = request.Coupon;
         logger.LogInformation("Creating new discount for {ProductName}", coupon.ProductName);
 
         await dbContext.Coupons.AddAsync(coupon);
@@ -91,7 +92,7 @@ public class DiscountsController(DiscountContext dbContext, ILogger<DiscountsCon
     [HttpPut("{id:int}")]
     [ProducesResponseType(typeof(Coupon), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
-    public async Task<ActionResult<Coupon>> UpdateDiscount(int id, [FromBody] Coupon request)
+    public async Task<ActionResult<Coupon>> UpdateDiscount(int id, [FromBody] CreateCouponRequest request)
     {
         logger.LogInformation("Updating discount for Id {Id}", id);
 
@@ -100,11 +101,11 @@ public class DiscountsController(DiscountContext dbContext, ILogger<DiscountsCon
         if (coupon is null)
             throw new NotFoundException("Coupon", id);
 
-        coupon.ProductName = request.ProductName;
-        coupon.Description = request.Description;
-        coupon.Amount = request.Amount;
-        coupon.Type = request.Type;
-        coupon.IsGlobal = request.IsGlobal;
+        coupon.ProductName = request.Coupon.ProductName;
+        coupon.Description = request.Coupon.Description;
+        coupon.Amount = request.Coupon.Amount;
+        coupon.Type = request.Coupon.Type;
+        coupon.IsGlobal = request.Coupon.IsGlobal;
 
         dbContext.Coupons.Update(coupon);
         await dbContext.SaveChangesAsync();

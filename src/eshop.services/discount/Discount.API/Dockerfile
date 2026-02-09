@@ -1,6 +1,7 @@
 FROM mcr.microsoft.com/dotnet/aspnet:9.0 AS base
-USER $APP_UID
 WORKDIR /app
+RUN mkdir -p /data && chown $APP_UID /data
+USER $APP_UID
 EXPOSE 6065
 
 
