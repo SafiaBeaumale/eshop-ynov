@@ -31,4 +31,9 @@ public class CreateProductCommand : ICommand<CreateProductCommandResult>
     /// Gets or sets the list of categories associated with the product being created.
     /// </summary>
     public List<string> Categories { get; set; } = [];
+
+    /// <summary>
+    /// Gets or sets the initial stock quantity for the product. Defaults to 0 if not provided.
+    /// </summary>
+    public int Stock { get; set; }
 }

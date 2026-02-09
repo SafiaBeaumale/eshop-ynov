@@ -32,3 +32,12 @@ public class ProductNotFoundException : NotFoundException
     /// </summary>
     public ProductNotFoundException(Guid id) : base("produit", id) { }
 }
+
+/// <summary>
+/// Represents an exception that is thrown when the requested quantity exceeds the available stock for a product.
+/// </summary>
+public class InsufficientStockException : BusinessException
+{
+    public InsufficientStockException(Guid productId, int requested, int available)
+        : base($"Stock insuffisant pour le produit '{productId}'. Demandé : {requested}, disponible : {available}.") { }
+}
