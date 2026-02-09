@@ -710,7 +710,62 @@
           "name": "Catalog",
           "item": [
             {
-              "name": "Recupérer la liste des produits",
+              "name": "Creation de Produit",
+              "request": {
+                "method": "POST",
+                "header": [],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n    \"name\":\"Super telephone\",\n    \"Categories\":[\"phone\"],\n    \"description\": \"Phone Pro\",\n    \"imageFile\" : \"https://images.unsplash.com/photo-1525598912003-663126343e1f?q=80&w=1170&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D\",\n    \"price\": 150\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{yarp_url}}/catalog-service/products",
+                  "host": [
+                    "{{yarp_url}}"
+                  ],
+                  "path": [
+                    "catalog-service",
+                    "products"
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Mise à jour de Produit",
+              "request": {
+                "method": "PUT",
+                "header": [],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n    \"id\":\"019bb7bd-6f70-44ec-b18a-596b74f44f6b\",\n    \"name\":\"New Product Updated\",\n    \"Categories\":[\"c1\",\"c2\", \"c3\",\"c4\"],\n    \"description\": \"Description Product A\",\n    \"imageFile\" : \"Image file Product A after update\",\n    \"price\": 280\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{yarp_url}}/catalog-service/products/019bb7bd-6f70-44ec-b18a-596b74f44f6b",
+                  "host": [
+                    "{{yarp_url}}"
+                  ],
+                  "path": [
+                    "catalog-service",
+                    "products",
+                    "019bb7bd-6f70-44ec-b18a-596b74f44f6b"
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Recupération de la liste des produits",
               "request": {
                 "method": "GET",
                 "header": [],
@@ -738,31 +793,50 @@
               "response": []
             },
             {
-              "name": "Recupérer un produit",
+              "name": "Recupération d'un produit",
               "request": {
                 "method": "GET",
                 "header": [],
                 "url": {
-                  "raw": "{{yarp_url}}/catalog-service/products/5334c996-8457-4cf0-815c-ed2b77c4ff61",
+                  "raw": "{{yarp_url}}/catalog-service/products/019bb7da-3e5f-4069-965e-01b1952c5248",
                   "host": [
                     "{{yarp_url}}"
                   ],
                   "path": [
                     "catalog-service",
                     "products",
-                    "5334c996-8457-4cf0-815c-ed2b77c4ff61"
+                    "019bb7da-3e5f-4069-965e-01b1952c5248"
                   ]
                 }
               },
               "response": []
             },
             {
-              "name": "Recupérer les produits par catégorie",
+              "name": "Suppression d'un produit",
+              "request": {
+                "method": "DELETE",
+                "header": [],
+                "url": {
+                  "raw": "{{yarp_url}}/catalog-service/products/019c2d56-48c7-462d-b696-c6ebf6e28216",
+                  "host": [
+                    "{{yarp_url}}"
+                  ],
+                  "path": [
+                    "catalog-service",
+                    "products",
+                    "019c2d56-48c7-462d-b696-c6ebf6e28216"
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Récupération des produits par catégorie",
               "request": {
                 "method": "GET",
                 "header": [],
                 "url": {
-                  "raw": "{{yarp_url}}/catalog-service/products/category/c2",
+                  "raw": "{{yarp_url}}/catalog-service/products/category/phone",
                   "host": [
                     "{{yarp_url}}"
                   ],
@@ -770,7 +844,74 @@
                     "catalog-service",
                     "products",
                     "category",
-                    "c2"
+                    "phone"
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Etat de l'api Catalog",
+              "request": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{yarp_url}}/catalog-service/health",
+                  "host": [
+                    "{{yarp_url}}"
+                  ],
+                  "path": [
+                    "catalog-service",
+                    "health"
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Import Produits Excel",
+              "request": {
+                "method": "POST",
+                "header": [],
+                "body": {
+                  "mode": "formdata",
+                  "formdata": [
+                    {
+                      "key": "file",
+                      "type": "file",
+                      "uuid": "04a51719-5be3-487f-bcef-db7c7a256783",
+                      "src": "/C:/Users/Alexis/Downloads/products-import-template.xlsx"
+                    }
+                  ]
+                },
+                "url": {
+                  "raw": "{{yarp_url}}/catalog-service/products/import",
+                  "host": [
+                    "{{yarp_url}}"
+                  ],
+                  "path": [
+                    "catalog-service",
+                    "products",
+                    "import"
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Export Produits",
+              "request": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{yarp_url}}/catalog-service/products/export",
+                  "host": [
+                    "{{yarp_url}}"
+                  ],
+                  "path": [
+                    "catalog-service",
+                    "products",
+                    "export"
                   ]
                 }
               },
@@ -782,19 +923,192 @@
           "name": "Basket",
           "item": [
             {
-              "name": "Recupérer un panier par son nom user",
+              "name": "Récupérer le panier d'un utilisateur",
               "request": {
                 "method": "GET",
                 "header": [],
                 "url": {
-                  "raw": "{{yarp_url}}/basket-service/baskets/svn",
+                  "raw": "{{yarp_url}}/basket-service/baskets/guest",
                   "host": [
                     "{{yarp_url}}"
                   ],
                   "path": [
                     "basket-service",
                     "baskets",
-                    "svn"
+                    "guest"
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Création d'un panier pour utilisateur",
+              "request": {
+                "method": "POST",
+                "header": [],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n    \"Cart\": {\n        \"UserName\": \"swn\",\n        \"Items\": [\n            {\n                \"Quantity\": 2,\n                \"Color\": \"Red\",\n                \"Price\": 500,\n                \"ProductId\": \"5334c996-8457-4cf0-815c-ed2b77c4ff61\",\n                \"ProductName\": \"IPhone X\"\n            },\n            {\n                \"Quantity\": 1,\n                \"Color\": \"Blue\",\n                \"Price\": 500,\n                \"ProductId\": \"c67d6323-e8b1-4bdf-9a75-b0d0d2e7e914\",\n                \"ProductName\": \"Samsung 10\"\n            }\n        ]\n    }\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{yarp_url}}/basket-service/baskets/swn",
+                  "host": [
+                    "{{yarp_url}}"
+                  ],
+                  "path": [
+                    "basket-service",
+                    "baskets",
+                    "swn"
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Suppression du panier d'un utilisateur",
+              "request": {
+                "method": "DELETE",
+                "header": [],
+                "url": {
+                  "raw": "{{yarp_url}}/basket-service/baskets/swn",
+                  "host": [
+                    "{{yarp_url}}"
+                  ],
+                  "path": [
+                    "basket-service",
+                    "baskets",
+                    "swn"
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Suppression d'un item dans un panier",
+              "request": {
+                "method": "DELETE",
+                "header": [],
+                "url": {
+                  "raw": "{{yarp_url}}/basket-service/baskets/swn/items/5334c996-8457-4cf0-815c-ed2b77c4ff61",
+                  "host": [
+                    "{{yarp_url}}"
+                  ],
+                  "path": [
+                    "basket-service",
+                    "baskets",
+                    "swn",
+                    "items",
+                    "5334c996-8457-4cf0-815c-ed2b77c4ff61"
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Etat de l'api Basket",
+              "request": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{yarp_url}}/basket-service/health",
+                  "host": [
+                    "{{yarp_url}}"
+                  ],
+                  "path": [
+                    "basket-service",
+                    "health"
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Validation d'un panier",
+              "request": {
+                "method": "POST",
+                "header": [],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"BasketCheckoutDto\": {\n    \"userName\": \"swn\",\n    \"CustomerId\": \"189dc8dc-990f-48e0-a37b-e6f2b60b9d7d\",\n    \"totalPrice\": 0,\n    \"firstName\": \"swn\",\n    \"lastName\": \"swn\",\n    \"emailAddress\": \"test@test.com\",\n    \"addressLine\": \"34 Charles Street\",\n    \"country\": \"USA\",\n    \"state\": \"Michigan\",\n    \"zipCode\": \"48198\",\n    \"cardName\": \"swn\",\n    \"cardNumber\": \"485-3184\",\n    \"expiration\": \"11/30\",\n    \"cvv\": \"333\",\n    \"paymentMethod\": 1\n  }\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{yarp_url}}/basket-service/baskets/swn/checkout",
+                  "host": [
+                    "{{yarp_url}}"
+                  ],
+                  "path": [
+                    "basket-service",
+                    "baskets",
+                    "swn",
+                    "checkout"
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Modifier une ligne du panier",
+              "request": {
+                "method": "PUT",
+                "header": [],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\r\n  \"userName\": \"swn\",\r\n  \"productId\": \"5334c996-8457-4cf0-815c-ed2b77c4ff61\",\r\n  \"quantity\": 5\r\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{yarp_url}}/basket-service/baskets/swn/items",
+                  "host": [
+                    "{{yarp_url}}"
+                  ],
+                  "path": [
+                    "basket-service",
+                    "baskets",
+                    "swn",
+                    "items"
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Ajouter une ligne au panier",
+              "request": {
+                "method": "POST",
+                "header": [],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\r\n  \"userName\": \"swn\",\r\n  \"item\": {\r\n    \"quantity\": 2,\r\n    \"color\": \"Rouge\",\r\n    \"productName\": \"T-Shirt\",\r\n    \"price\": 29.99,\r\n    \"productId\": \"a1b2c3d4-e5f6-7890-abcd-ef1234567890\"\r\n  }\r\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{yarp_url}}/basket-service/baskets/swn/items",
+                  "host": [
+                    "{{yarp_url}}"
+                  ],
+                  "path": [
+                    "basket-service",
+                    "baskets",
+                    "swn",
+                    "items"
                   ]
                 }
               },
@@ -806,7 +1120,7 @@
           "name": "Ordering",
           "item": [
             {
-              "name": "Recupérer la liste des commandes",
+              "name": "Recupérer toutes les commandes",
               "request": {
                 "method": "GET",
                 "header": [],
@@ -828,6 +1142,289 @@
                       "key": "pageSize",
                       "value": "10"
                     }
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Créer une commande ou faire un ordre",
+              "request": {
+                "method": "POST",
+                "header": [],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n    \"CustomerId\": \"58c49479-ec65-4de2-86e7-033c546291aa\",\n    \"OrderName\": \"ORD_4\",\n    \"ShippingAddress\": {\n      \"FirstName\": \"Valentina\",\n      \"LastName\": \"Legros\",\n      \"EmailAddress\": \"valeg@xmail.com\",\n      \"AddressLine\": \"Wiegand Pass Suite 825\",\n      \"Country\": \"USA\",\n      \"State\": \"Oklahoma\",\n      \"ZipCode\": \"41248\"\n    },\n    \"BillingAddress\": {\n      \"FirstName\": \"Valentina\",\n      \"LastName\": \"Legros\",\n      \"EmailAddress\": \"valeg@xmail.com\",\n      \"AddressLine\": \"Wiegand Pass Suite 825\",\n      \"Country\": \"USA\",\n      \"State\": \"Oklahoma\",\n      \"ZipCode\": \"41248\"\n    },\n    \"Payment\": {\n      \"CardName\": \"CARD_1\",\n      \"CardNumber\": \"875-444-3739\",\n      \"Expiration\": \"12/29\",\n      \"Cvv\": \"455\",\n      \"PaymentMethod\": 1\n    },\n    \"OrderStatus\": 2,\n    \"OrderItems\": [\n      {\n        \"ProductId\": \"5334c996-8457-4cf0-815c-ed2b77c4ff61\",\n        \"ProductName\": \"IPhone X\",\n        \"Quantity\": 2,\n        \"Price\": 500\n      },\n      {\n        \"ProductId\": \"c67d6323-e8b1-4bdf-9a75-b0d0d2e7e914\",\n        \"ProductName\": \"Samsung 10\",\n        \"Quantity\": 1,\n        \"Price\": 500\n      }\n    ]\n  }",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{yarp_url}}/ordering-service/orders",
+                  "host": [
+                    "{{yarp_url}}"
+                  ],
+                  "path": [
+                    "ordering-service",
+                    "orders"
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Mettre à jour une commande",
+              "request": {
+                "method": "PUT",
+                "header": [],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n    \"Id\": \"9b01d3b2-c238-4484-8c65-db695c11948b\",\n    \"CustomerId\": \"58c49479-ec65-4de2-86e7-033c546291aa\",\n    \"OrderName\": \"ORD_5\",\n    \"ShippingAddress\": {\n      \"FirstName\": \"Mehmet\",\n      \"LastName\": \"Legros\",\n      \"EmailAddress\": \"valeg@xmail.com\",\n      \"AddressLine\": \"Wiegand Pass Suite 825\",\n      \"Country\": \"USA\",\n      \"State\": \"New York\",\n      \"ZipCode\": \"41248\"\n    },\n    \"BillingAddress\": {\n      \"FirstName\": \"Mehmet\",\n      \"LastName\": \"Legros\",\n      \"EmailAddress\": \"valeg@xmail.com\",\n      \"AddressLine\": \"Wiegand Pass Suite 825\",\n      \"Country\": \"USA\",\n      \"State\": \"Oklahoma\",\n      \"ZipCode\": \"41248\"\n    },\n    \"Payment\": {\n      \"CardName\": \"CARD_2\",\n      \"CardNumber\": \"875-444-3739\",\n      \"Expiration\": \"12/29\",\n      \"CVV\": \"455\",\n      \"PaymentMethod\": 1\n    },\n    \"OrderStatus\": 2,\n    \"OrderItems\": [\n      {\n        \"ProductId\": \"5334c996-8457-4cf0-815c-ed2b77c4ff61\",\n        \"Quantity\": 2,\n        \"Price\": 500\n      },\n      {\n        \"ProductId\": \"c67d6323-e8b1-4bdf-9a75-b0d0d2e7e914\",\n        \"Quantity\": 1,\n        \"Price\": 500\n      }\n    ]\n  }",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{yarp_url}}/ordering-service/orders",
+                  "host": [
+                    "{{yarp_url}}"
+                  ],
+                  "path": [
+                    "ordering-service",
+                    "orders"
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Recupérer les commandes d'un client",
+              "request": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{yarp_url}}/ordering-service/orders/customer/58c49479-ec65-4de2-86e7-033c5462",
+                  "host": [
+                    "{{yarp_url}}"
+                  ],
+                  "path": [
+                    "ordering-service",
+                    "orders",
+                    "customer",
+                    "58c49479-ec65-4de2-86e7-033c5462"
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Recupérer les informations d'une commande",
+              "request": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{yarp_url}}/ordering-service/orders/3cf6f86c-34ad-43b6-98eb-35949526415e",
+                  "host": [
+                    "{{yarp_url}}"
+                  ],
+                  "path": [
+                    "ordering-service",
+                    "orders",
+                    "3cf6f86c-34ad-43b6-98eb-35949526415e"
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Suppression d'une commande",
+              "request": {
+                "method": "DELETE",
+                "header": [],
+                "url": {
+                  "raw": "{{yarp_url}}/ordering-service/orders/9b01d3b2-c238-4484-8c65-db695c11948b",
+                  "host": [
+                    "{{yarp_url}}"
+                  ],
+                  "path": [
+                    "ordering-service",
+                    "orders",
+                    "9b01d3b2-c238-4484-8c65-db695c11948b"
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Etat de l'api Ordering",
+              "request": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{yarp_url}}/ordering-service/health",
+                  "host": [
+                    "{{yarp_url}}"
+                  ],
+                  "path": [
+                    "ordering-service",
+                    "health"
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Changer le status d'une commande",
+              "request": {
+                "method": "PUT",
+                "header": [],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\r\n    \"status\": 3\r\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{yarp_url}}/ordering-service/orders/3cf6f86c-34ad-43b6-98eb-35949526415e",
+                  "host": [
+                    "{{yarp_url}}"
+                  ],
+                  "path": [
+                    "ordering-service",
+                    "orders",
+                    "3cf6f86c-34ad-43b6-98eb-35949526415e"
+                  ]
+                }
+              },
+              "response": []
+            }
+          ]
+        },
+        {
+          "name": "Discount",
+          "item": [
+            {
+              "name": "Récupérer les réductions d'un produit",
+              "protocolProfileBehavior": {
+                "disableBodyPruning": true
+              },
+              "request": {
+                "method": "GET",
+                "header": [],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n    \"name\":\"Produit B\",\n    \"Categories\":[\"c1\",\"c2\"],\n    \"description\": \"Description Product C\",\n    \"imageFile\" : \"Image file Product C\",\n    \"price\": 399\n}"
+                },
+                "url": {
+                  "raw": "{{yarp_url}}/discount-service/discounts/product?productName=Super%20telephone",
+                  "host": [
+                    "{{yarp_url}}"
+                  ],
+                  "path": [
+                    "discount-service",
+                    "discounts",
+                    "product"
+                  ],
+                  "query": [
+                    {
+                      "key": "productName",
+                      "value": "Super%20telephone"
+                    }
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Création d'une réduction",
+              "request": {
+                "method": "POST",
+                "header": [],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\r\n  \"coupon\": {\r\n    \"productName\": \"IPhone X\",\r\n    \"description\": \"Réduction MacBook Pro\",\r\n    \"amount\": 200.0\r\n  }\r\n}\r\n",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{yarp_url}}/discount-service/discount",
+                  "host": [
+                    "{{yarp_url}}"
+                  ],
+                  "path": [
+                    "discount-service",
+                    "discount"
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Modifier une réduction",
+              "request": {
+                "method": "PUT",
+                "header": [],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"coupon\": {\n    \"productName\": \"IPhone X\",\n    \"description\": \"Réduction MacBook Pro\",\n    \"amount\": 200.0\n  }\n}\n"
+                },
+                "url": {
+                  "raw": "{{yarp_url}}/discount-service/discount/x",
+                  "host": [
+                    "{{yarp_url}}"
+                  ],
+                  "path": [
+                    "discount-service",
+                    "discount",
+                    "x"
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Suppression d'une réduction",
+              "request": {
+                "method": "DELETE",
+                "header": [],
+                "url": {
+                  "raw": "{{yarp_url}}/discount-service/discount/x",
+                  "host": [
+                    "{{yarp_url}}"
+                  ],
+                  "path": [
+                    "discount-service",
+                    "discount",
+                    "x"
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Récupérer les réductions gloables",
+              "request": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{yarp_url}}/discount-service/discounts/global",
+                  "host": [
+                    "{{yarp_url}}"
+                  ],
+                  "path": [
+                    "discount-service",
+                    "discounts",
+                    "global"
                   ]
                 }
               },
